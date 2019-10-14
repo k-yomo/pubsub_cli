@@ -7,7 +7,7 @@ $ brew tap k-yomo/pubsub_cli
 $ brew install pubsub_cli 
 ```
 
-### Homebrew
+### Go 
 ```
 $ go get github.com/k-yomo/pubsub_cli
 ```
