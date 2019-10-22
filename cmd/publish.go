@@ -11,29 +11,29 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// publishCmd represents the publish command
+// publishCmd represents the command to publish message
 var publishCmd = &cobra.Command{
 	Use:   "publish TOPIC_ID DATA",
 	Short: "publish Pub/Sub message",
-	Long: "publish new message to given topic with given data",
+	Long:  "publish new message to given topic with given data",
 	Args:  cobra.ExactArgs(2),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		topicID := args[0]
 		data := args[1]
 		client, err := util.NewPubSubClient(projectID, emulatorHost)
 		if err != nil {
-			return errors.Wrap(err, "[error]initialize pubsub client failed")
+			return errors.Wrap(err, "initialize pubsub client failed")
 		}
 		topic, err := client.FindOrCreateTopic(context.Background(), topicID)
 		if err != nil {
-			return errors.Wrapf(err, "[error]find or create topic %s failed")
+			return errors.Wrapf(err, "find or create topic %s failed")
 		}
 		_, _ = colorstring.Println(fmt.Sprintf("[start] publish message to %s", topic.String()))
 		messageID, err := topic.Publish(context.Background(), &pubsub.Message{Data: []byte(data)}).Get(context.Background())
 		if err != nil {
-			return errors.Wrapf(err, "[error]publish message with data = %s", data)
+			return errors.Wrapf(err, "failed to publish message with data = %s", data)
 		}
-		_, _ = colorstring.Println(fmt.Sprintf("[green][success] publishing message to %s was successfull, got message ID = %s", topic.String(), messageID))
+		_, _ = colorstring.Println(fmt.Sprintf("[green][success] published message to %s successfully, message ID = %s", topic.String(), messageID))
 		return nil
 	},
 }

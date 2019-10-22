@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// subscribeCmd represents the subscribe command
+// subscribeCmd represents the command to subscribe messages
 var subscribeCmd = &cobra.Command{
 	Use:   "subscribe TOPIC_ID",
 	Short: "subscribe Pub/Sub topic",
@@ -35,7 +35,7 @@ var subscribeCmd = &cobra.Command{
 		fmt.Println("[start] waiting for publish...")
 		err = sub.Receive(context.Background(), func(ctx context.Context, msg *pubsub.Message) {
 			msg.Ack()
-			_, _ = colorstring.Println(fmt.Sprintf("[green][success] Got message: %q\n", string(msg.Data)))
+			_, _ = colorstring.Println(fmt.Sprintf("[green][success] Got message id: %s, data: %q\n", msg.ID, string(msg.Data)))
 		})
 		if err != nil {
 			return errors.Wrapf(err, "subscribe %s failed", topic.String())
