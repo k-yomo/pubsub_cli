@@ -1,5 +1,5 @@
 # pubsub_cli
-Very Handy pubsu_cli for Pub/Sub Emulatro
+pubsub_cli is a super handy Pub/Sub Emulator CLI which lets you publish / subscribe Pub/Sub message right away!
 
 ## Installation
 ### Homebrew
@@ -26,9 +26,10 @@ Usage:
   pubsub_cli [command]
 
 Available Commands:
-  help        Help about any command
-  publish     publish Pub/Sub message
-  subscribe   subscribe Pub/Sub topic
+  help          Help about any command
+  publish       publish Pub/Sub message
+  register_push register Pub/Sub push endpoint
+  subscribe     subscribe Pub/Sub topic
 
 Flags:
   -h, --help             help for pubsub_cli
