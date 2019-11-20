@@ -31,7 +31,7 @@ var publishCmd = &cobra.Command{
 		_, _ = colorstring.Println(fmt.Sprintf("[start] publish message to %s", topic.String()))
 		messageID, err := topic.Publish(context.Background(), &pubsub.Message{Data: []byte(data)}).Get(context.Background())
 		if err != nil {
-			return errors.Wrapf(err, "failed to publish message with data = %s", data)
+			return errors.Wrapf(err, "publish message with data = %s failed", data)
 		}
 		_, _ = colorstring.Println(fmt.Sprintf("[green][success] published message to %s successfully, message ID = %s", topic.String(), messageID))
 		return nil

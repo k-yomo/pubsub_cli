@@ -16,10 +16,10 @@ type PubSubClient struct {
 
 func NewPubSubClient(projectID string, pubsubEmulatorHost string) (*PubSubClient, error) {
 	if projectID == "" {
-		return nil, errors.New("GCP Project ID must be set with either env varibale 'GCP_PROJECT_ID' or --project flag")
+		return nil, errors.New("GCP Project ID must be set form either env varibale 'GCP_PROJECT_ID' or --project flag")
 	}
 	if pubsubEmulatorHost == "" {
-		return nil, errors.New("Emulator host must be set with either env varibale 'PUBSUB_EMULATOR_HOST' or --host flag")
+		return nil, errors.New("Emulator host must be set from either env varibale 'PUBSUB_EMULATOR_HOST' or --host flag")
 	}
 
 	conn, err := grpc.Dial(pubsubEmulatorHost, grpc.WithInsecure())

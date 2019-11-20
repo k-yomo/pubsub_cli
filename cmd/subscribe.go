@@ -31,7 +31,7 @@ var subscribeCmd = &cobra.Command{
 		if err != nil {
 			return errors.Wrapf(err, "create unique subscription to %s failed", topic.String())
 		}
-		fmt.Println(fmt.Sprintf("create unique subscription to %s", topic.String()))
+		fmt.Println(fmt.Sprintf("unique subscription to %s created", topic.String()))
 		fmt.Println("[start] waiting for publish...")
 		err = sub.Receive(context.Background(), func(ctx context.Context, msg *pubsub.Message) {
 			msg.Ack()
