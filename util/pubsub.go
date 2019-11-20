@@ -5,6 +5,8 @@ import (
 	"context"
 	"github.com/pkg/errors"
 	"github.com/rs/xid"
+	"google.golang.org/api/option"
+	"google.golang.org/grpc"
 	"time"
 )
 
@@ -14,12 +16,17 @@ type PubSubClient struct {
 
 func NewPubSubClient(projectID string, pubsubEmulatorHost string) (*PubSubClient, error) {
 	if projectID == "" {
-		return nil, errors.New("GCP Project ID must be set with either env varibale 'GCP_PROJECT_ID' or --project flag")
+		return nil, errors.New("GCP Project ID must be set form either env varibale 'GCP_PROJECT_ID' or --project flag")
 	}
 	if pubsubEmulatorHost == "" {
-		return nil, errors.New("Emulator host must be set with either env varibale 'PUBSUB_EMULATOR_HOST' or --host flag")
+		return nil, errors.New("Emulator host must be set from either env varibale 'PUBSUB_EMULATOR_HOST' or --host flag")
 	}
-	client, err := pubsub.NewClient(context.Background(), projectID)
+
+	conn, err := grpc.Dial(pubsubEmulatorHost, grpc.WithInsecure())
+	if err != nil {
+		return nil, errors.Wrap(err, "grpc.Dial")
+	}
+	client, err := pubsub.NewClient(context.Background(), projectID, option.WithGRPCConn(conn))
 	if err != nil {
 		return nil, errors.Wrap(err, "intialize new pubsub client failed")
 	}
@@ -45,7 +52,7 @@ func (pc *PubSubClient) FindOrCreateTopic(ctx context.Context, topicID string) (
 
 func (pc *PubSubClient) CreateUniqueSubscription(topic *pubsub.Topic) (*pubsub.Subscription, error) {
 	subscriptionConfig := pubsub.SubscriptionConfig{
-		Topic: topic,
+		Topic:            topic,
 		ExpirationPolicy: time.Hour * 24,
 	}
 	sub, err := pc.CreateSubscription(context.Background(), xid.New().String(), subscriptionConfig)
