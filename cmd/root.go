@@ -9,10 +9,12 @@ import (
 
 var projectID string
 var emulatorHost string
+var gcpCredentialFilePath string
 
 func init() {
 	projectID = os.Getenv("GCP_PROJECT_ID")
 	emulatorHost = os.Getenv("PUBSUB_EMULATOR_HOST")
+	gcpCredentialFilePath = os.Getenv("GCP_CREDENTIAL_FILE_PATH")
 }
 
 var rootCmd = &cobra.Command{
@@ -26,6 +28,7 @@ var rootCmd = &cobra.Command{
 func Exec() {
 	rootCmd.PersistentFlags().StringVar(&projectID, "project", projectID, "gcp project id (You can also set 'GCP_PROJECT_ID' to env variable)")
 	rootCmd.PersistentFlags().StringVar(&emulatorHost, "host", emulatorHost, "emulator host (You can also set 'PUBSUB_EMULATOR_HOST' to env variable)")
+	rootCmd.PersistentFlags().StringVar(&gcpCredentialFilePath, "cred-file", gcpCredentialFilePath, "gcp credential file path (You can also set 'GCP_CREDENTIAL_FILE_PATH' to env variable)")
 	if err := rootCmd.Execute(); err != nil {
 		_, _ = colorstring.Println(fmt.Sprintf("[red][error]%v", err.Error()))
 		os.Exit(1)

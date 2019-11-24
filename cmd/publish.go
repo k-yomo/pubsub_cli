@@ -17,27 +17,32 @@ var publishCmd = &cobra.Command{
 	Short: "publish Pub/Sub message",
 	Long:  "publish new message to given topic with given data",
 	Args:  cobra.ExactArgs(2),
-	RunE: func(cmd *cobra.Command, args []string) error {
-		topicID := args[0]
-		data := args[1]
-		client, err := util.NewPubSubClient(projectID, emulatorHost)
-		if err != nil {
-			return errors.Wrap(err, "initialize pubsub client failed")
-		}
-		topic, err := client.FindOrCreateTopic(context.Background(), topicID)
-		if err != nil {
-			return errors.Wrapf(err, "find or create topic %s failed")
-		}
-		_, _ = colorstring.Println(fmt.Sprintf("[start] publish message to %s", topic.String()))
-		messageID, err := topic.Publish(context.Background(), &pubsub.Message{Data: []byte(data)}).Get(context.Background())
-		if err != nil {
-			return errors.Wrapf(err, "publish message with data = %s failed", data)
-		}
-		_, _ = colorstring.Println(fmt.Sprintf("[green][success] published message to %s successfully, message ID = %s", topic.String(), messageID))
-		return nil
-	},
+	RunE:  publish,
 }
 
 func init() {
 	rootCmd.AddCommand(publishCmd)
+}
+
+func publish(_ *cobra.Command, args []string) error {
+	ctx := context.Background()
+	topicID := args[0]
+	data := args[1]
+
+	client, err := util.NewPubSubClient(ctx, projectID, emulatorHost, gcpCredentialFilePath)
+	if err != nil {
+		return errors.Wrap(err, "initialize pubsub client")
+	}
+	topic, err := client.FindOrCreateTopic(ctx, topicID)
+	if err != nil {
+		return errors.Wrapf(err, "find or create topic %s", topicID)
+	}
+
+	_, _ = colorstring.Println(fmt.Sprintf("[start] publishing message to %s...", topic.String()))
+	messageID, err := topic.Publish(ctx, &pubsub.Message{Data: []byte(data)}).Get(ctx)
+	if err != nil {
+		return errors.Wrapf(err, "publish message with data = %s", data)
+	}
+	_, _ = colorstring.Println(fmt.Sprintf("[green][success] published message to %s successfully, message ID = %s", topic.String(), messageID))
+	return nil
 }
