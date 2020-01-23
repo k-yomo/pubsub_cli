@@ -30,7 +30,7 @@ Available Commands:
   help          Help about any command
   publish       publish Pub/Sub message
   register_push register Pub/Sub push endpoint
-  subscribe     subscribe Pub/Sub topic
+  subscribe     subscribe Pub/Sub topics
 
 Flags:
   -h, --help               help for pubsub_cli
@@ -48,7 +48,7 @@ $ pubsub_cli publish test_topic '{"jsonKey":"value"}' --host=localhost:8432 --pr
 
 ### Subscribe
 ```
-$ pubsub_cli subscribe test_topic --cred-file=credentials.json --project=test_project
+$ pubsub_cli subscribe test_topic another_topic --cred-file=credentials.json --project=test_project
 ```
 
 ### Register Push Endpoint

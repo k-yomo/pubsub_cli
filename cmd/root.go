@@ -30,7 +30,7 @@ func Exec() {
 	rootCmd.PersistentFlags().StringVar(&emulatorHost, "host", emulatorHost, "emulator host (You can also set 'PUBSUB_EMULATOR_HOST' to env variable)")
 	rootCmd.PersistentFlags().StringVar(&gcpCredentialFilePath, "cred-file", gcpCredentialFilePath, "gcp credential file path (You can also set 'GCP_CREDENTIAL_FILE_PATH' to env variable)")
 	if err := rootCmd.Execute(); err != nil {
-		_, _ = colorstring.Println(fmt.Sprintf("[red][error]%v", err.Error()))
+		_, _ = colorstring.Println(fmt.Sprintf("[red][error]%v", err))
 		os.Exit(1)
 	}
 }
