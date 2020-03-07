@@ -11,19 +11,18 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// publishCmd represents the command to publish message
-var publishCmd = &cobra.Command{
-	Use:   "publish TOPIC_ID DATA",
-	Short: "publish Pub/Sub message",
-	Long:  "publish new message to given topic with given data",
-	Args:  cobra.ExactArgs(2),
-	RunE:  publish,
+// newPublishCmd returns the command to publish message
+func newPublishCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "publish TOPIC_ID DATA",
+		Short: "publish Pub/Sub message",
+		Long:  "publish new message to given topic with given data",
+		Args:  cobra.ExactArgs(2),
+		RunE:  publish,
+	}
 }
 
-func init() {
-	rootCmd.AddCommand(publishCmd)
-}
-
+// publish publishes Pub/Sub message
 func publish(_ *cobra.Command, args []string) error {
 	ctx := context.Background()
 	topicID := args[0]

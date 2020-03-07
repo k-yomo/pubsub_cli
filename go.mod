@@ -5,7 +5,7 @@ go 1.13
 require (
 	cloud.google.com/go/pubsub v1.0.1
 	cloud.google.com/go/storage v1.4.0 // indirect
-	github.com/google/go-cmp v0.3.1 // indirect
+	github.com/google/go-cmp v0.3.1
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db
 	github.com/pkg/errors v0.8.1
 	github.com/rs/xid v1.2.1

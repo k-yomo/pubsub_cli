@@ -12,17 +12,15 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// subscribeCmd represents the command to subscribe messages
-var subscribeCmd = &cobra.Command{
-	Use:   "subscribe TOPIC_ID ...",
-	Short: "subscribe Pub/Sub topic",
-	Long:  "create subscription for given Pub/Sub topic and subscribe the topic",
-	Args:  cobra.MinimumNArgs(1),
-	RunE:  subscribe,
-}
-
-func init() {
-	rootCmd.AddCommand(subscribeCmd)
+// newSubscribeCmd returns the command to subscribe messages
+func newSubscribeCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "subscribe TOPIC_ID ...",
+		Short: "subscribe Pub/Sub topic",
+		Long:  "create subscription for given Pub/Sub topic and subscribe the topic",
+		Args:  cobra.MinimumNArgs(1),
+		RunE:  subscribe,
+	}
 }
 
 type subscriber struct {
@@ -30,6 +28,7 @@ type subscriber struct {
 	sub   *pubsub.Subscription
 }
 
+// subscribe subscribes Pub/Sub messages
 func subscribe(_ *cobra.Command, args []string) error {
 	ctx := context.Background()
 	topicIDs := args
@@ -42,7 +41,7 @@ func subscribe(_ *cobra.Command, args []string) error {
 
 		topic, err := client.FindOrCreateTopic(ctx, topicID)
 		if err != nil {
-			return errors.Wrapf(err, "find or create topic %s")
+			return errors.Wrapf(err, "find or create topic %s", topicID)
 		}
 
 		fmt.Println(fmt.Sprintf("[start]creating unique subscription to %s...", topic.String()))

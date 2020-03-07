@@ -12,19 +12,18 @@ import (
 	"time"
 )
 
-// registerPushCmd represents the command to register an endpoint for subscribing
-var registerPushCmd = &cobra.Command{
-	Use:   "register_push TOPIC_ID ENDPOINT",
-	Short: "register Pub/Sub push endpoint",
-	Long:  "register new endpoint for  push http request from Pub/Sub",
-	Args:  cobra.ExactArgs(2),
-	RunE:  registerPush,
+// newRegisterPushCmd returns the command to register an endpoint for subscribing
+func newRegisterPushCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "register_push TOPIC_ID ENDPOINT",
+		Short: "register Pub/Sub push endpoint",
+		Long:  "register new endpoint for  push http request from Pub/Sub",
+		Args:  cobra.ExactArgs(2),
+		RunE:  registerPush,
+	}
 }
 
-func init() {
-	rootCmd.AddCommand(registerPushCmd)
-}
-
+// registerPush registers new push endpoint
 func registerPush(_ *cobra.Command, args []string) error {
 	ctx := context.Background()
 	topicID := args[0]
@@ -36,7 +35,7 @@ func registerPush(_ *cobra.Command, args []string) error {
 	}
 	topic, err := client.FindOrCreateTopic(ctx, topicID)
 	if err != nil {
-		return errors.Wrapf(err, "[error]find or create topic %s")
+		return errors.Wrapf(err, "[error]find or create topic %s", topicID)
 	}
 
 	_, _ = colorstring.Println(fmt.Sprintf("[start] registering push endpoint for %s...", topic.String()))
