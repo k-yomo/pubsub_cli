@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"io"
 	"sync"
 
 	"cloud.google.com/go/pubsub"
@@ -13,13 +14,15 @@ import (
 )
 
 // newSubscribeCmd returns the command to subscribe messages
-func newSubscribeCmd() *cobra.Command {
+func newSubscribeCmd(pubsubClient *util.PubSubClient, out io.Writer) *cobra.Command {
 	return &cobra.Command{
 		Use:   "subscribe TOPIC_ID ...",
 		Short: "subscribe Pub/Sub topic",
 		Long:  "create subscription for given Pub/Sub topic and subscribe the topic",
 		Args:  cobra.MinimumNArgs(1),
-		RunE:  subscribe,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return subscribe(cmd, out, pubsubClient, args)
+		},
 	}
 }
 
@@ -29,31 +32,26 @@ type subscriber struct {
 }
 
 // subscribe subscribes Pub/Sub messages
-func subscribe(_ *cobra.Command, args []string) error {
+func subscribe(_ *cobra.Command, out io.Writer, pubsubClient *util.PubSubClient, args []string) error {
 	ctx := context.Background()
 	topicIDs := args
 	subscribers := make([]*subscriber, len(topicIDs))
 	for i, topicID := range topicIDs {
-		client, err := util.NewPubSubClient(ctx, projectID, emulatorHost, gcpCredentialFilePath)
-		if err != nil {
-			return errors.Wrap(err, "initialize pubsub client")
-		}
-
-		topic, err := client.FindOrCreateTopic(ctx, topicID)
+		topic, err := pubsubClient.FindOrCreateTopic(ctx, topicID)
 		if err != nil {
 			return errors.Wrapf(err, "find or create topic %s", topicID)
 		}
 
 		fmt.Println(fmt.Sprintf("[start]creating unique subscription to %s...", topic.String()))
-		sub, err := client.CreateUniqueSubscription(ctx, topic)
+		sub, err := pubsubClient.CreateUniqueSubscription(ctx, topic)
 		if err != nil {
 			return errors.Wrapf(err, "create unique subscription to %s", topic.String())
 		}
 		subscribers[i] = &subscriber{topic: topic, sub: sub}
-		_, _ = colorstring.Println(fmt.Sprintf("[green][success] created subscription to %s", topic.String()))
+		_, _ = colorstring.Fprintln(out, fmt.Sprintf("[green][success] created subscription to %s", topic.String()))
 	}
 
-	fmt.Println("[start] waiting for publish...")
+	_, _ = fmt.Fprintln(out, "[start] waiting for publish...")
 	wg := sync.WaitGroup{}
 	for _, sub := range subscribers {
 		wg.Add(1)
@@ -61,10 +59,10 @@ func subscribe(_ *cobra.Command, args []string) error {
 			defer wg.Done()
 			err := s.sub.Receive(ctx, func(ctx context.Context, msg *pubsub.Message) {
 				msg.Ack()
-				_, _ = colorstring.Println(fmt.Sprintf("[green][success] got message to %s, id: %s, data: %q", s.topic.ID(), msg.ID, string(msg.Data)))
+				_, _ = colorstring.Fprintln(out, fmt.Sprintf("[green][success] got message to %s, id: %s, data: %q", s.topic.ID(), msg.ID, string(msg.Data)))
 			})
 			if err != nil {
-				_, _ = colorstring.Println(fmt.Sprintf("[red][error] %s has got error: %v", s.sub.ID(), err))
+				_, _ = colorstring.Fprintln(out, fmt.Sprintf("[red][error] %s has got error: %v", s.sub.ID(), err))
 			}
 		}(sub)
 	}
