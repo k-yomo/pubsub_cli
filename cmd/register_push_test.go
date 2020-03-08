@@ -30,7 +30,7 @@ func Test_registerPush(t *testing.T) {
 		wantErr            bool
 	}{
 		{
-			name:               "push subscription is expected to be registered successfully",
+			name:               "push subscription is registered successfully",
 			mockSubscriptionID: "test",
 			args:               args{pubsubClient: pubsubClient, args: []string{"test_topic", "http://localhost:9000"}},
 			check: func() {
@@ -54,6 +54,18 @@ func Test_registerPush(t *testing.T) {
 				}
 				sub.Delete(context.Background())
 			},
+		},
+		{
+			name:    "push subscription with invalid topic name causes error",
+			args:    args{pubsubClient: pubsubClient, args: []string{"1", "http://localhost:9000"}},
+			check:   func() {},
+			wantErr: true,
+		},
+		{
+			name:    "push subscription with invalid endpoint causes error",
+			args:    args{pubsubClient: pubsubClient, args: []string{"test_topic", "invalid"}},
+			check:   func() {},
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {

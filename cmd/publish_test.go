@@ -46,6 +46,18 @@ func Test_publish(t *testing.T) {
 			},
 			wantData: "hello",
 		},
+		{
+			name:    "publish to topic with invalid name causes error",
+			args:    args{pubsubClient: pubsubClient, args: []string{"1", "hello"}},
+			before:  func() *pubsub.Subscription { return &pubsub.Subscription{} },
+			wantErr: true,
+		},
+		{
+			name:    "publish empty message causes error",
+			args:    args{pubsubClient: pubsubClient, args: []string{"test_topic", ""}},
+			before:  func() *pubsub.Subscription { return &pubsub.Subscription{} },
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -54,6 +66,9 @@ func Test_publish(t *testing.T) {
 			err := newPublishCmd(out).RunE(tt.args.in0, tt.args.args)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("publish() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if tt.wantErr {
 				return
 			}
 			wg := sync.WaitGroup{}
