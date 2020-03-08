@@ -1,9 +1,9 @@
 
 .PHONY: test
 test:
-	go test -coverprofile=cover.out ./...
-	go tool cover -func=cover.out
+	go test -coverprofile=coverage.out ./...
+	go tool cover -func=coverage.out
 
-.PHONY: cover-html
-cover-html:
-	go tool cover -html=cover.out
+.PHONY: coverage-html
+coverage-html:
+	go tool cover -html=coverage.out
