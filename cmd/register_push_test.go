@@ -56,7 +56,7 @@ func Test_registerPush(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			clear := util.SetMockUUID(tt.mockSubscriptionID)
+			clear := util.SetMockUUID(t, tt.mockSubscriptionID)
 			defer clear()
 
 			out := &bytes.Buffer{}

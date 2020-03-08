@@ -1,6 +1,9 @@
 package util
 
-import "github.com/rs/xid"
+import (
+	"github.com/rs/xid"
+	"testing"
+)
 
 type UUIDGenerator interface {
 	String() string
@@ -12,7 +15,8 @@ func UUID() string {
 	return idgen.String()
 }
 
-func SetMockUUID(uuid string) (clear func()) {
+func SetMockUUID(t *testing.T, uuid string) (clear func()) {
+	t.Helper()
 	m := &mockIDGen{uuid: uuid}
 	idgen = m
 	return func() {
