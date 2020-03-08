@@ -3,6 +3,6 @@ version: '3.7'
 services:
   pubsub_emulator:
     image: google/cloud-sdk:latest
-    command: gcloud beta emulators pubsub start --host-port=0.0.0.0:8432
+    command: gcloud beta emulators pubsub start --host-port=0.0.0.0:8085
     ports:
-      - 8432:8432
+      - 8085:8085
