@@ -14,6 +14,8 @@ func Test_registerPush(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	clear := setTestRootVariables(t)
+	defer clear()
 
 	type args struct {
 		in0          *cobra.Command
@@ -60,7 +62,7 @@ func Test_registerPush(t *testing.T) {
 			defer clear()
 
 			out := &bytes.Buffer{}
-			err := registerPush(tt.args.in0, out, tt.args.pubsubClient, tt.args.args)
+			err := newRegisterPushCmd(out).RunE(tt.args.in0, tt.args.args)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("registerPush() error = %v, wantErr %v", err, tt.wantErr)
 				return

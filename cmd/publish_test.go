@@ -15,6 +15,8 @@ func Test_publish(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	clear := setTestRootVariables(t)
+	defer clear()
 
 	type args struct {
 		in0          *cobra.Command
@@ -49,7 +51,7 @@ func Test_publish(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			sub := tt.before()
 			out := &bytes.Buffer{}
-			err := publish(tt.args.in0, out, tt.args.pubsubClient, tt.args.args)
+			err := newPublishCmd(out).RunE(tt.args.in0, tt.args.args)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("publish() error = %v, wantErr %v", err, tt.wantErr)
 				return

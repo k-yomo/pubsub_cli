@@ -17,7 +17,7 @@ type PubSubClient struct {
 
 func NewPubSubClient(ctx context.Context, projectID, pubsubEmulatorHost, gcpCredFilePath string) (*PubSubClient, error) {
 	if projectID == "" {
-		return nil, errors.New("GCP Project ID must be set form either env varibale 'GCP_PROJECT_ID' or --project flag")
+		return nil, errors.New("GCP Project ID must be set from either env varibale 'GCP_PROJECT_ID' or --project flag")
 	}
 	if pubsubEmulatorHost == "" && gcpCredFilePath == "" {
 		return nil, errors.New("emulator host or gcp credential file path must be set")
