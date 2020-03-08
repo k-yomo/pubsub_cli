@@ -1,4 +1,5 @@
 # pubsub_cli
+![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 ![Main Workflow](https://github.com/k-yomo/pubsub_cli/workflows/Main%20Workflow/badge.svg)
 [![codecov](https://codecov.io/gh/k-yomo/pubsub_cli/branch/master/graph/badge.svg)](https://codecov.io/gh/k-yomo/pubsub_cli)
 
