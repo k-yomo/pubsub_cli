@@ -14,13 +14,17 @@ import (
 )
 
 // newSubscribeCmd returns the command to subscribe messages
-func newSubscribeCmd(pubsubClient *util.PubSubClient, out io.Writer) *cobra.Command {
+func newSubscribeCmd(out io.Writer) *cobra.Command {
 	return &cobra.Command{
 		Use:   "subscribe TOPIC_ID ...",
 		Short: "subscribe Pub/Sub topic",
 		Long:  "create subscription for given Pub/Sub topic and subscribe the topic",
 		Args:  cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			pubsubClient, err := util.NewPubSubClient(context.Background(), projectID, emulatorHost, gcpCredentialFilePath)
+			if err != nil {
+				return errors.Wrap(err, "initialize pubsub client")
+			}
 			return subscribe(cmd, out, pubsubClient, args)
 		},
 	}
