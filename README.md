@@ -1,4 +1,7 @@
 # pubsub_cli
+![Main Workflow](https://github.com/k-yomo/pubsub_cli/workflows/Main%20Workflow/badge.svg)
+[![codecov](https://codecov.io/gh/k-yomo/pubsub_cli/branch/master/graph/badge.svg)](https://codecov.io/gh/k-yomo/pubsub_cli)
+
 pubsub_cli is a super handy Pub/Sub CLI which lets you publish / subscribe Pub/Sub message right away!
 
 ## Installation
