@@ -1,16 +1,15 @@
 package cmd
 
 import (
+	"cloud.google.com/go/pubsub"
 	"context"
 	"fmt"
-	"io"
-	"sync"
-
-	"cloud.google.com/go/pubsub"
 	"github.com/k-yomo/pubsub_cli/util"
 	"github.com/mitchellh/colorstring"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	"golang.org/x/sync/errgroup"
+	"io"
 )
 
 // newSubscribeCmd returns the command to subscribe messages
@@ -57,20 +56,16 @@ func subscribe(_ *cobra.Command, out io.Writer, pubsubClient *util.PubSubClient,
 	}
 
 	_, _ = fmt.Fprintln(out, "[start] waiting for publish...")
-	wg := sync.WaitGroup{}
-	for _, sub := range subscribers {
-		wg.Add(1)
-		go func(s *subscriber) {
-			defer wg.Done()
+	eg := errgroup.Group{}
+	for _, s := range subscribers {
+		s := s
+		eg.Go(func() error {
 			err := s.sub.Receive(ctx, func(ctx context.Context, msg *pubsub.Message) {
 				msg.Ack()
-				_, _ = colorstring.Fprintln(out, fmt.Sprintf("[green][success] got message to %s, id: %s, data: %q", s.topic.ID(), msg.ID, string(msg.Data)))
+				_, _ = colorstring.Fprintln(out, fmt.Sprintf("[green][success] got message published to %s, id: %s, data: %q", s.topic.ID(), msg.ID, string(msg.Data)))
 			})
-			if err != nil {
-				_, _ = colorstring.Fprintln(out, fmt.Sprintf("[red][error] %s has got error: %v", s.sub.ID(), err))
-			}
-		}(sub)
+			return errors.Wrapf(err, "receive message published to %s through %s subscription", s.topic.ID(), s.sub.ID())
+		})
 	}
-	wg.Wait()
-	return nil
+	return eg.Wait()
 }
