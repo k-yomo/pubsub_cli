@@ -14,10 +14,11 @@ import (
 // newPublishCmd returns the command to publish message
 func newPublishCmd(out io.Writer) *cobra.Command {
 	return &cobra.Command{
-		Use:   "publish TOPIC_ID DATA",
-		Short: "publish Pub/Sub message",
-		Long:  "publish new message to given topic with given data",
-		Args:  cobra.ExactArgs(2),
+		Use:     "publish TOPIC_ID DATA",
+		Short:   "publish Pub/Sub message",
+		Long:    "publish new message to given topic with given data",
+		Example: "pubsub_cli publish test_topic '{\"key\":\"value\"}' --host=localhost:8085 --project=test_project",
+		Args:    cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			pubsubClient, err := util.NewPubSubClient(context.Background(), projectID, emulatorHost, gcpCredentialFilePath)
 			if err != nil {

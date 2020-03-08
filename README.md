@@ -20,7 +20,7 @@ $ go get github.com/k-yomo/pubsub_cli
 ### Pub/Sub Emulator
 - Make sure Pub/Sub Emulator is running before executing commands.
 ```
-$ gcloud beta emulators pubsub start --host-port=0.0.0.0:8432
+$ gcloud beta emulators pubsub start --host-port=0.0.0.0:8085
 ```
  
 ## Usage
@@ -46,7 +46,7 @@ Flags:
 ## Examples
 ### Publish
 ```
-$ pubsub_cli publish test_topic '{"jsonKey":"value"}' --host=localhost:8432 --project=test_project
+$ pubsub_cli publish test_topic '{"key":"value"}' --host=localhost:8085 --project=test_project
 ```
 
 ### Subscribe
@@ -56,7 +56,7 @@ $ pubsub_cli subscribe test_topic another_topic --cred-file=credentials.json --p
 
 ### Register Push Endpoint
 ```
-$ pubsub_cli register_push test_topic http://localhost:1323/subscribe --host=localhost:8432 --project=test_project
+$ pubsub_cli register_push test_topic http://localhost:1323/subscribe --host=localhost:8085 --project=test_project
 ```
 
 ## Note

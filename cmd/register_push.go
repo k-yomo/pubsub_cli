@@ -15,10 +15,11 @@ import (
 // newRegisterPushCmd returns the command to register an endpoint for subscribing
 func newRegisterPushCmd(out io.Writer) *cobra.Command {
 	return &cobra.Command{
-		Use:   "register_push TOPIC_ID ENDPOINT",
-		Short: "register Pub/Sub push endpoint",
-		Long:  "register new endpoint for  push http request from Pub/Sub",
-		Args:  cobra.ExactArgs(2),
+		Use:     "register_push TOPIC_ID ENDPOINT",
+		Short:   "register Pub/Sub push endpoint",
+		Long:    "register new endpoint for  push http request from Pub/Sub",
+		Example: "pubsub_cli register_push test_topic http://localhost:1323/subscribe --host=localhost:8085 --project=test_project",
+		Args:    cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			pubsubClient, err := util.NewPubSubClient(context.Background(), projectID, emulatorHost, gcpCredentialFilePath)
 			if err != nil {
