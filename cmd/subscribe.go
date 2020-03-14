@@ -19,6 +19,7 @@ func newSubscribeCmd(out io.Writer) *cobra.Command {
 		Short:   "subscribe Pub/Sub topic",
 		Long:    "create subscription for given Pub/Sub topic and subscribe the topic",
 		Example: "pubsub_cli subscribe test_topic another_topic --host=localhost:8085 --project=test_project",
+		Aliases: []string{"s"},
 		Args:    cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			pubsubClient, err := util.NewPubSubClient(context.Background(), projectID, emulatorHost, gcpCredentialFilePath)
