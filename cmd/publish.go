@@ -18,6 +18,7 @@ func newPublishCmd(out io.Writer) *cobra.Command {
 		Short:   "publish Pub/Sub message",
 		Long:    "publish new message to given topic with given data",
 		Example: "pubsub_cli publish test_topic '{\"key\":\"value\"}' --host=localhost:8085 --project=test_project",
+		Aliases: []string{"p"},
 		Args:    cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			pubsubClient, err := util.NewPubSubClient(context.Background(), projectID, emulatorHost, gcpCredentialFilePath)
