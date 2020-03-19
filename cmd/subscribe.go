@@ -40,25 +40,34 @@ type subscriber struct {
 func subscribe(_ *cobra.Command, out io.Writer, pubsubClient *util.PubSubClient, args []string) error {
 	ctx := context.Background()
 	topicIDs := args
-	subscribers := make([]*subscriber, len(topicIDs))
-	for i, topicID := range topicIDs {
-		topic, err := pubsubClient.FindOrCreateTopic(ctx, topicID)
-		if err != nil {
-			return errors.Wrapf(err, "find or create topic %s", topicID)
-		}
 
-		fmt.Println(fmt.Sprintf("[start]creating unique subscription to %s...", topic.String()))
-		sub, err := pubsubClient.CreateUniqueSubscription(ctx, topic)
-		if err != nil {
-			return errors.Wrapf(err, "create unique subscription to %s", topic.String())
-		}
-		subscribers[i] = &subscriber{topic: topic, sub: sub}
-		_, _ = colorstring.Fprintln(out, fmt.Sprintf("[green][success] created subscription to %s", topic.String()))
+	eg := &errgroup.Group{}
+	subscribers := make(chan *subscriber, len(topicIDs))
+	for _, topicID := range topicIDs {
+		topicID := topicID
+		eg.Go(func() error {
+			topic, err := pubsubClient.FindOrCreateTopic(ctx, topicID)
+			if err != nil {
+				return errors.Wrapf(err, "find or create topic %s", topicID)
+			}
+
+			fmt.Println(fmt.Sprintf("[start]creating unique subscription to %s...", topic.String()))
+			sub, err := pubsubClient.CreateUniqueSubscription(ctx, topic)
+			if err != nil {
+				return errors.Wrapf(err, "create unique subscription to %s", topic.String())
+			}
+			subscribers <- &subscriber{topic: topic, sub: sub}
+			_, _ = colorstring.Fprintln(out, fmt.Sprintf("[green][success] created subscription to %s", topic.String()))
+			return nil
+		})
 	}
+	if err := eg.Wait(); err != nil {
+		return err
+	}
+	close(subscribers)
 
 	_, _ = fmt.Fprintln(out, "[start] waiting for publish...")
-	eg := errgroup.Group{}
-	for _, s := range subscribers {
+	for s := range subscribers {
 		s := s
 		eg.Go(func() error {
 			err := s.sub.Receive(ctx, func(ctx context.Context, msg *pubsub.Message) {
