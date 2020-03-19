@@ -1,0 +1,39 @@
+before:
+  hooks:
+    - go mod download
+builds:
+- env:
+  - CGO_ENABLED=0
+  goos:
+    - darwin
+    - linux
+    - windows
+  ldflags:
+    - -s -w -X github.com/k-yomo/pubsub_cli/cmd.version={{.Version}}
+archives:
+- replacements:
+    darwin: Darwin
+    linux: Linux
+    windows: Windows
+    386: i386
+    amd64: x86_64
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ .Tag }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+    - '^docs:'
+    - '^test:'
+brews:
+  - github:
+      owner: k-yomo
+      name: homebrew-pubsub_cli
+    folder: Formula
+    homepage: https://github.com/k-yomo/pubsub_cli
+    description: Super handy cloud Pub/Sub CLI
+    skip_upload: auto
+    test: |
+      system "#{bin}/pubsub_cli", "--version"

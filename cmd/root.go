@@ -7,6 +7,7 @@ import (
 	"os"
 )
 
+var version string
 var projectID string
 var emulatorHost string
 var gcpCredentialFilePath string
@@ -24,6 +25,7 @@ func newRootCmd() *cobra.Command {
 		Use:   "pubsub_cli",
 		Short: "pubsub_cli is a handy cloud Pub/Sub CLI",
 		Long:  "Very simple cloud Pub/Sub CLI used as publisher / subscriber",
+		Version: version,
 	}
 
 	projectID = os.Getenv("GCP_PROJECT_ID")
