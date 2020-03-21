@@ -15,4 +15,3 @@ var idgen UUIDGenerator = xid.New()
 func UUID() string {
 	return idgen.String()
 }
-

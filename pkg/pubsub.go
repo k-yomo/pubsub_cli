@@ -1,16 +1,18 @@
 package pkg
 
 import (
-	"cloud.google.com/go/pubsub"
 	"context"
 	"fmt"
+	"time"
+
+	"cloud.google.com/go/pubsub"
 	"github.com/pkg/errors"
 	"github.com/rs/xid"
 	"google.golang.org/api/option"
 	"google.golang.org/grpc"
-	"time"
 )
 
+// PubSubClient represents extended pubsub client
 type PubSubClient struct {
 	*pubsub.Client
 }

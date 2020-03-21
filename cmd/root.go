@@ -23,9 +23,9 @@ func Exec() {
 
 func newRootCmd() *cobra.Command {
 	var rootCmd = &cobra.Command{
-		Use:   "pubsub_cli",
-		Short: "pubsub_cli is a handy cloud Pub/Sub CLI",
-		Long:  "Very simple cloud Pub/Sub CLI used as publisher / subscriber",
+		Use:     "pubsub_cli",
+		Short:   "pubsub_cli is a handy cloud Pub/Sub CLI",
+		Long:    "Very simple cloud Pub/Sub CLI used as publisher / subscriber",
 		Version: version,
 	}
 
