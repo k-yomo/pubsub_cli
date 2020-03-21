@@ -16,7 +16,7 @@ import (
 func newSubscribeCmd(out io.Writer) *cobra.Command {
 	return &cobra.Command{
 		Use:     "subscribe TOPIC_ID ...",
-		Short:   "subscribe Pub/Sub topic",
+		Short:   "subscribe Pub/Sub topics",
 		Long:    "create subscription for given Pub/Sub topic and subscribe the topic",
 		Example: "pubsub_cli subscribe test_topic another_topic --host=localhost:8085 --project=test_project",
 		Aliases: []string{"s"},

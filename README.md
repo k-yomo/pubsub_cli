@@ -38,10 +38,10 @@ Available Commands:
   subscribe     subscribe Pub/Sub topics
 
 Flags:
-  -h, --help               help for pubsub_cli
-      --project string     gcp project id (You can also set 'GCP_PROJECT_ID' to env variable)
-      --host string        emulator host (You can also set 'PUBSUB_EMULATOR_HOST' to env variable)
-      --cred-file string   gcp credential file path (You can also set 'GCP_CREDENTIAL_FILE_PATH' to env variable)
+  -c, --cred-file string   gcp credential file path (You can also set 'GCP_CREDENTIAL_FILE_PATH' to env variable)
+      --help               help for pubsub_cli
+  -h, --host string        emulator host (You can also set 'PUBSUB_EMULATOR_HOST' to env variable)
+  -p, --project string     gcp project id (You can also set 'GCP_PROJECT_ID' to env variable)
 ```
 ※ When both of --host and --cred-file are set, emulator host will be prioritised for safety purpose.
 
@@ -53,12 +53,12 @@ $ pubsub_cli publish test_topic '{"key":"value"}' --host=localhost:8085 --projec
 
 ### Subscribe
 ```
-$ pubsub_cli subscribe test_topic another_topic --cred-file=credentials.json --project=test_project
+$ pubsub_cli subscribe test_topic another_topic --cred-file=credentials.json -p=test_project
 ```
 
 ### Register Push Endpoint
 ```
-$ pubsub_cli register_push test_topic http://localhost:1323/subscribe --host=localhost:8085 --project=test_project
+$ pubsub_cli register_push test_topic http://localhost:1323/subscribe -h=localhost:8085 -p=test_project
 ```
 
 ## Note
