@@ -12,6 +12,7 @@ var projectID string
 var emulatorHost string
 var gcpCredentialFilePath string
 
+// Exec executes command
 func Exec() {
 	rootCmd := newRootCmd()
 	if err := rootCmd.Execute(); err != nil {

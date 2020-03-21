@@ -2,13 +2,13 @@ package cmd
 
 import (
 	"bytes"
-	"github.com/k-yomo/pubsub_cli/util"
+	"github.com/k-yomo/pubsub_cli/pkg"
 	"github.com/spf13/cobra"
 	"testing"
 )
 
 func Test_subscribe(t *testing.T) {
-	pubsubClient, err := util.NewTestPubSubClient(t)
+	pubsubClient, err := pkg.NewTestPubSubClient(t)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -16,7 +16,7 @@ func Test_subscribe(t *testing.T) {
 	defer clear()
 	type args struct {
 		in0          *cobra.Command
-		pubsubClient *util.PubSubClient
+		pubsubClient *pkg.PubSubClient
 		args         []string
 	}
 

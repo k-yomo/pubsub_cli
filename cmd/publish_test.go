@@ -4,14 +4,14 @@ import (
 	"bytes"
 	"cloud.google.com/go/pubsub"
 	"context"
-	"github.com/k-yomo/pubsub_cli/util"
+	"github.com/k-yomo/pubsub_cli/pkg"
 	"github.com/spf13/cobra"
 	"sync"
 	"testing"
 )
 
 func Test_publish(t *testing.T) {
-	pubsubClient, err := util.NewTestPubSubClient(t)
+	pubsubClient, err := pkg.NewTestPubSubClient(t)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -20,7 +20,7 @@ func Test_publish(t *testing.T) {
 
 	type args struct {
 		in0          *cobra.Command
-		pubsubClient *util.PubSubClient
+		pubsubClient *pkg.PubSubClient
 		args         []string
 	}
 	tests := []struct {

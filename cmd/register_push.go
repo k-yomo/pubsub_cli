@@ -4,7 +4,7 @@ import (
 	"cloud.google.com/go/pubsub"
 	"context"
 	"fmt"
-	"github.com/k-yomo/pubsub_cli/util"
+	"github.com/k-yomo/pubsub_cli/pkg"
 	"github.com/mitchellh/colorstring"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -22,7 +22,7 @@ func newRegisterPushCmd(out io.Writer) *cobra.Command {
 		Aliases: []string{"r"},
 		Args:    cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			pubsubClient, err := util.NewPubSubClient(context.Background(), projectID, emulatorHost, gcpCredentialFilePath)
+			pubsubClient, err := pkg.NewPubSubClient(context.Background(), projectID, emulatorHost, gcpCredentialFilePath)
 			if err != nil {
 				return errors.Wrap(err, "initialize pubsub client")
 			}
@@ -32,7 +32,7 @@ func newRegisterPushCmd(out io.Writer) *cobra.Command {
 }
 
 // registerPush registers new push endpoint
-func registerPush(_ *cobra.Command, out io.Writer, pubsubClient *util.PubSubClient, args []string) error {
+func registerPush(_ *cobra.Command, out io.Writer, pubsubClient *pkg.PubSubClient, args []string) error {
 	ctx := context.Background()
 	topicID := args[0]
 	endpoint := args[1]
@@ -52,7 +52,7 @@ func registerPush(_ *cobra.Command, out io.Writer, pubsubClient *util.PubSubClie
 			AuthenticationMethod: nil,
 		},
 	}
-	if _, err := pubsubClient.CreateSubscription(context.Background(), util.UUID(), subscriptionConfig); err != nil {
+	if _, err := pubsubClient.CreateSubscription(context.Background(), pkg.UUID(), subscriptionConfig); err != nil {
 		return errors.Wrapf(err, "register push endpoint for = %s", topic.String())
 	}
 	_, _ = colorstring.Fprintln(out, fmt.Sprintf("[green][success] registered %s as an endpoint for %s", endpoint, topic.String()))

@@ -1,4 +1,4 @@
-package util
+package pkg
 
 import (
 	"cloud.google.com/go/pubsub"
@@ -15,9 +15,10 @@ type PubSubClient struct {
 	*pubsub.Client
 }
 
+// NewPubSubClient initializes new pubsub client
 func NewPubSubClient(ctx context.Context, projectID, pubsubEmulatorHost, gcpCredFilePath string) (*PubSubClient, error) {
 	if projectID == "" {
-		return nil, errors.New("GCP Project ID must be set from either env varibale 'GCP_PROJECT_ID' or --project flag")
+		return nil, errors.New("GCP Project ID must be set from either env variable 'GCP_PROJECT_ID' or --project flag")
 	}
 	if pubsubEmulatorHost == "" && gcpCredFilePath == "" {
 		return nil, errors.New("emulator host or gcp credential file path must be set")
@@ -41,6 +42,7 @@ func NewPubSubClient(ctx context.Context, projectID, pubsubEmulatorHost, gcpCred
 	return &PubSubClient{client}, nil
 }
 
+// FindOrCreateTopic finds the topic or create if not exists.
 func (pc *PubSubClient) FindOrCreateTopic(ctx context.Context, topicID string) (*pubsub.Topic, error) {
 	topic := pc.Topic(topicID)
 
@@ -58,6 +60,7 @@ func (pc *PubSubClient) FindOrCreateTopic(ctx context.Context, topicID string) (
 	return topic, nil
 }
 
+// CreateUniqueSubscription creates an unique subscription to given topic
 func (pc *PubSubClient) CreateUniqueSubscription(ctx context.Context, topic *pubsub.Topic) (*pubsub.Subscription, error) {
 	subscriptionConfig := pubsub.SubscriptionConfig{
 		Topic:            topic,

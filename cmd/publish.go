@@ -4,7 +4,7 @@ import (
 	"cloud.google.com/go/pubsub"
 	"context"
 	"fmt"
-	"github.com/k-yomo/pubsub_cli/util"
+	"github.com/k-yomo/pubsub_cli/pkg"
 	"github.com/mitchellh/colorstring"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -21,7 +21,7 @@ func newPublishCmd(out io.Writer) *cobra.Command {
 		Aliases: []string{"p"},
 		Args:    cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			pubsubClient, err := util.NewPubSubClient(context.Background(), projectID, emulatorHost, gcpCredentialFilePath)
+			pubsubClient, err := pkg.NewPubSubClient(context.Background(), projectID, emulatorHost, gcpCredentialFilePath)
 			if err != nil {
 				return errors.Wrap(err, "initialize pubsub client")
 			}
@@ -31,7 +31,7 @@ func newPublishCmd(out io.Writer) *cobra.Command {
 }
 
 // publish publishes Pub/Sub message
-func publish(_ *cobra.Command, out io.Writer, pubsubClient *util.PubSubClient, args []string) error {
+func publish(_ *cobra.Command, out io.Writer, pubsubClient *pkg.PubSubClient, args []string) error {
 	ctx := context.Background()
 	topicID := args[0]
 	data := args[1]

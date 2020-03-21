@@ -3,14 +3,14 @@ package cmd
 import (
 	"bytes"
 	"context"
-	"github.com/k-yomo/pubsub_cli/util"
+	"github.com/k-yomo/pubsub_cli/pkg"
 	"github.com/spf13/cobra"
 	"testing"
 	"time"
 )
 
 func Test_registerPush(t *testing.T) {
-	pubsubClient, err := util.NewTestPubSubClient(t)
+	pubsubClient, err := pkg.NewTestPubSubClient(t)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -19,7 +19,7 @@ func Test_registerPush(t *testing.T) {
 
 	type args struct {
 		in0          *cobra.Command
-		pubsubClient *util.PubSubClient
+		pubsubClient *pkg.PubSubClient
 		args         []string
 	}
 	tests := []struct {
@@ -70,7 +70,7 @@ func Test_registerPush(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			clear := util.SetMockUUID(t, tt.mockSubscriptionID)
+			clear := pkg.SetMockUUID(t, tt.mockSubscriptionID)
 			defer clear()
 
 			out := &bytes.Buffer{}
