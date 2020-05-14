@@ -32,11 +32,11 @@ func newRootCmd() *cobra.Command {
 
 	projectID = os.Getenv("GCP_PROJECT_ID")
 	emulatorHost = os.Getenv("PUBSUB_EMULATOR_HOST")
-	gcpCredentialFilePath = os.Getenv("GCP_CREDENTIAL_FILE_PATH")
+	gcpCredentialFilePath = os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
 	rootCmd.PersistentFlags().Bool("help", false, fmt.Sprintf("help for %s", rootCmd.Name()))
 	rootCmd.PersistentFlags().StringVarP(&projectID, "project", "p", projectID, "gcp project id (You can also set 'GCP_PROJECT_ID' to env variable)")
 	rootCmd.PersistentFlags().StringVarP(&emulatorHost, "host", "h", emulatorHost, "emulator host (You can also set 'PUBSUB_EMULATOR_HOST' to env variable)")
-	rootCmd.PersistentFlags().StringVarP(&gcpCredentialFilePath, "cred-file", "c", gcpCredentialFilePath, "gcp credential file path (You can also set 'GCP_CREDENTIAL_FILE_PATH' to env variable)")
+	rootCmd.PersistentFlags().StringVarP(&gcpCredentialFilePath, "cred-file", "c", gcpCredentialFilePath, "gcp credential file path (You can also set 'GOOGLE_APPLICATION_CREDENTIALS' to env variable)")
 
 	rootCmd.AddCommand(newPublishCmd(os.Stdin), newSubscribeCmd(os.Stdin), newRegisterPushCmd(os.Stdin))
 	return rootCmd

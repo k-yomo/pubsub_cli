@@ -3,13 +3,13 @@ package pkg
 import (
 	"context"
 	"fmt"
+	"google.golang.org/grpc"
 	"time"
 
 	"cloud.google.com/go/pubsub"
 	"github.com/pkg/errors"
 	"github.com/rs/xid"
 	"google.golang.org/api/option"
-	"google.golang.org/grpc"
 )
 
 // PubSubClient represents extended pubsub client
@@ -21,9 +21,6 @@ type PubSubClient struct {
 func NewPubSubClient(ctx context.Context, projectID, pubsubEmulatorHost, gcpCredFilePath string) (*PubSubClient, error) {
 	if projectID == "" {
 		return nil, errors.New("GCP Project ID must be set from either env variable 'GCP_PROJECT_ID' or --project flag")
-	}
-	if pubsubEmulatorHost == "" && gcpCredFilePath == "" {
-		return nil, errors.New("emulator host or gcp credential file path must be set")
 	}
 
 	var opts []option.ClientOption

@@ -49,7 +49,7 @@ func Test_newRootCmd(t *testing.T) {
 		{
 			name: "gcp credential file path can be set from env variable",
 			before: func() {
-				os.Setenv("GCP_CREDENTIAL_FILE_PATH", "cred.json")
+				os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", "cred.json")
 			},
 			check: func(gotCmd *cobra.Command) {
 				gotProject := gotCmd.Flag("cred-file").Value.String()

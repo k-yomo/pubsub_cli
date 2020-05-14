@@ -38,29 +38,38 @@ Available Commands:
   subscribe     subscribe Pub/Sub topics
 
 Flags:
-  -c, --cred-file string   gcp credential file path (You can also set 'GCP_CREDENTIAL_FILE_PATH' to env variable)
+  -c, --cred-file string   gcp credential file path (You can also set 'GOOGLE_APPLICATION_CREDENTIALS' to env variable)
       --help               help for pubsub_cli
   -h, --host string        emulator host (You can also set 'PUBSUB_EMULATOR_HOST' to env variable)
   -p, --project string     gcp project id (You can also set 'GCP_PROJECT_ID' to env variable)
 ```
 ※ When both of --host and --cred-file are set, emulator host will be prioritised for safety purpose.
 
+## Auth
+You need to be authenticated to execute pubsub_cli commands for GCP Project. Recommended ways are described below.
+
+1. use your own credential by execution `gcloud auth application-default login`
+2. use service account's credentials json by setting option `--cred-file` or env variable `GOOGLE_APPLICATION_CREDENTIALS`
+
+For more detail and about the other ways to authenticate, please refer to (official doc)(https://cloud.google.com/docs/authentication#oauth-2.0-clients).
+
 ## Examples
 ### Publish
 ```
-$ pubsub_cli publish test_topic '{"key":"value"}' --host=localhost:8085 --project=test_project
+$ gcloud auth application-default login
+$ pubsub_cli publish test_topic '{"key":"value"}' --project=your_gcp_project
 ```
 
 ### Subscribe
 ```
-$ pubsub_cli subscribe test_topic another_topic --cred-file=credentials.json -p=test_project
+$ pubsub_cli subscribe test_topic another_topic --cred-file=credentials.json -p=your_gcp_project
 ```
 
 ### Register Push Endpoint
 ```
-$ pubsub_cli register_push test_topic http://localhost:1323/subscribe -h=localhost:8085 -p=test_project
+$ pubsub_cli register_push test_topic http://localhost:1323/subscribe --host=localhost:8085 -p=emulator
 ```
 
 ## Note
-- Created topic won't be deleted automatically. 
-- Unused subscription will be deleted in 24 hours.
+- Created topics won't be deleted automatically. 
+- Unused subscriptions will be deleted in 24 hours.
