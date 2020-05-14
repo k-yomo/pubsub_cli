@@ -51,7 +51,7 @@ You need to be authenticated to execute pubsub_cli commands for GCP Project. Rec
 1. use your own credential by execution `gcloud auth application-default login`
 2. use service account's credentials json by setting option `--cred-file` or env variable `GOOGLE_APPLICATION_CREDENTIALS`
 
-For more detail and about the other ways to authenticate, please refer to (official doc)(https://cloud.google.com/docs/authentication#oauth-2.0-clients).
+For more detail and about the other ways to authenticate, please refer to [official doc](https://cloud.google.com/docs/authentication#oauth-2.0-clients).
 
 ## Examples
 ### Publish
