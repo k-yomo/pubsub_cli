@@ -1,13 +1,15 @@
 package cmd
 
-import "testing"
+import (
+	"github.com/spf13/cobra"
+	"testing"
+)
 
-func setTestRootVariables(t *testing.T) (clear func()) {
+func newTestRootCmd(t *testing.T) *cobra.Command {
 	t.Helper()
-	projectID = "test"
-	emulatorHost = "localhost:8085"
-	return func() {
-		projectID = ""
-		emulatorHost = ""
-	}
+
+	rootCmd := newRootCmd()
+	rootCmd.PersistentFlags().Set("project", "test")
+	rootCmd.PersistentFlags().Set("host", "localhost:8085")
+	return rootCmd
 }

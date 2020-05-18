@@ -3,7 +3,6 @@ package cmd
 import (
 	"cloud.google.com/go/pubsub"
 	"context"
-	"fmt"
 	"github.com/k-yomo/pubsub_cli/pkg"
 	"github.com/mitchellh/colorstring"
 	"github.com/pkg/errors"
@@ -22,27 +21,29 @@ func newRegisterPushCmd(out io.Writer) *cobra.Command {
 		Aliases: []string{"r"},
 		Args:    cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			pubsubClient, err := pkg.NewPubSubClient(context.Background(), projectID, emulatorHost, gcpCredentialFilePath)
+			topicID := args[0]
+			endpoint := args[1]
+			projectID, err := cmd.Flags().GetString("project")
+			emulatorHost, err := cmd.Flags().GetString("host")
+			gcpCredentialFilePath, err := cmd.Flags().GetString("cred-file")
+
+			pubsubClient, err := pkg.NewPubSubClient(cmd.Context(), projectID, emulatorHost, gcpCredentialFilePath)
 			if err != nil {
 				return errors.Wrap(err, "initialize pubsub client")
 			}
-			return registerPush(cmd, out, pubsubClient, args)
+			return registerPush(cmd.Context(), out, pubsubClient, topicID, endpoint)
 		},
 	}
 }
 
 // registerPush registers new push endpoint
-func registerPush(_ *cobra.Command, out io.Writer, pubsubClient *pkg.PubSubClient, args []string) error {
-	ctx := context.Background()
-	topicID := args[0]
-	endpoint := args[1]
-
+func registerPush(ctx context.Context, out io.Writer, pubsubClient *pkg.PubSubClient, topicID, endpoint string) error {
 	topic, err := pubsubClient.FindOrCreateTopic(ctx, topicID)
 	if err != nil {
 		return errors.Wrapf(err, "[error]find or create topic %s", topicID)
 	}
 
-	_, _ = colorstring.Fprintln(out, fmt.Sprintf("[start] registering push endpoint for %s...", topic.String()))
+	_, _ = colorstring.Fprintf(out, "[start] registering push endpoint for %s...\n", topic.String())
 	subscriptionConfig := pubsub.SubscriptionConfig{
 		Topic:            topic,
 		ExpirationPolicy: time.Hour * 24,
@@ -55,6 +56,6 @@ func registerPush(_ *cobra.Command, out io.Writer, pubsubClient *pkg.PubSubClien
 	if _, err := pubsubClient.CreateSubscription(context.Background(), pkg.UUID(), subscriptionConfig); err != nil {
 		return errors.Wrapf(err, "register push endpoint for = %s", topic.String())
 	}
-	_, _ = colorstring.Fprintln(out, fmt.Sprintf("[green][success] registered %s as an endpoint for %s", endpoint, topic.String()))
+	_, _ = colorstring.Fprintf(out, "[green][success] registered %s as an endpoint for %s\n", endpoint, topic.String())
 	return nil
 }

@@ -64,6 +64,7 @@ func (pc *PubSubClient) CreateUniqueSubscription(ctx context.Context, topic *pub
 	subscriptionConfig := pubsub.SubscriptionConfig{
 		Topic:            topic,
 		ExpirationPolicy: time.Hour * 24,
+		Labels:           map[string]string{"created_by": "pubsub_cli"},
 	}
 	sub, err := pc.CreateSubscription(ctx, fmt.Sprintf("pubsub_cli_%s", xid.New().String()), subscriptionConfig)
 	if err != nil {

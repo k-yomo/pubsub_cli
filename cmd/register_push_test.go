@@ -14,13 +14,11 @@ func Test_registerPush(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	clear := setTestRootVariables(t)
-	defer clear()
+	rootCmd := newTestRootCmd(t)
 
 	type args struct {
-		in0          *cobra.Command
-		pubsubClient *pkg.PubSubClient
-		args         []string
+		rootCmd *cobra.Command
+		args    []string
 	}
 	tests := []struct {
 		name               string
@@ -32,7 +30,7 @@ func Test_registerPush(t *testing.T) {
 		{
 			name:               "push subscription is registered successfully",
 			mockSubscriptionID: "test",
-			args:               args{pubsubClient: pubsubClient, args: []string{"test_topic", "http://localhost:9000"}},
+			args:               args{rootCmd: rootCmd, args: []string{"register_push", "test_topic", "http://localhost:9000"}},
 			check: func() {
 				sub := pubsubClient.Subscription("test")
 				subConfig, err := sub.Config(context.Background())
@@ -57,13 +55,46 @@ func Test_registerPush(t *testing.T) {
 		},
 		{
 			name:    "push subscription with invalid topic name causes error",
-			args:    args{pubsubClient: pubsubClient, args: []string{"1", "http://localhost:9000"}},
+			args:    args{rootCmd: rootCmd, args: []string{"register_push", "1", "http://localhost:9000"}},
 			check:   func() {},
 			wantErr: true,
 		},
 		{
 			name:    "push subscription with invalid endpoint causes error",
-			args:    args{pubsubClient: pubsubClient, args: []string{"test_topic", "invalid"}},
+			args:    args{rootCmd: rootCmd, args: []string{"register_push", "test_topic", "invalid"}},
+			check:   func() {},
+			wantErr: true,
+		},
+		{
+			name: "parent cmd without projectFlag causes error",
+			args: args{rootCmd: func() *cobra.Command {
+				cmd := &cobra.Command{}
+				cmd.PersistentFlags().String(hostFlagName, "host", "")
+				cmd.PersistentFlags().String(credFileFlagName, "cred.json", "")
+				return cmd
+			}(), args: []string{"publish", "test_topic", "hello"}},
+			check:   func() {},
+			wantErr: true,
+		},
+		{
+			name: "parent cmd without hostFlag causes error",
+			args: args{rootCmd: func() *cobra.Command {
+				cmd := &cobra.Command{}
+				cmd.PersistentFlags().String(projectFlagName, "project", "")
+				cmd.PersistentFlags().String(credFileFlagName, "cred.json", "")
+				return cmd
+			}(), args: []string{"publish", "test_topic", "hello"}},
+			check:   func() {},
+			wantErr: true,
+		},
+		{
+			name: "parent cmd without credFileFlag causes error",
+			args: args{rootCmd: func() *cobra.Command {
+				cmd := &cobra.Command{}
+				cmd.PersistentFlags().String(projectFlagName, "project", "")
+				cmd.PersistentFlags().String(hostFlagName, "host", "")
+				return cmd
+			}(), args: []string{"publish", "test_topic", "hello"}},
 			check:   func() {},
 			wantErr: true,
 		},
@@ -74,7 +105,11 @@ func Test_registerPush(t *testing.T) {
 			defer clear()
 
 			out := &bytes.Buffer{}
-			err := newRegisterPushCmd(out).RunE(tt.args.in0, tt.args.args)
+			cmd := newRegisterPushCmd(out)
+			tt.args.rootCmd.SetArgs(tt.args.args)
+			tt.args.rootCmd.AddCommand(cmd)
+
+			err := tt.args.rootCmd.Execute()
 			if (err != nil) != tt.wantErr {
 				t.Errorf("registerPush() error = %v, wantErr %v", err, tt.wantErr)
 				return

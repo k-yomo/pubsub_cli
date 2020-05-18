@@ -22,11 +22,25 @@ func newSubscribeCmd(out io.Writer) *cobra.Command {
 		Aliases: []string{"s"},
 		Args:    cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			pubsubClient, err := pkg.NewPubSubClient(context.Background(), projectID, emulatorHost, gcpCredentialFilePath)
+			topicIDs := args
+			projectID, err := cmd.Flags().GetString(projectFlagName)
+			if err != nil {
+				return err
+			}
+			emulatorHost, err := cmd.Flags().GetString(hostFlagName)
+			if err != nil {
+				return err
+			}
+			gcpCredentialFilePath, err := cmd.Flags().GetString(credFileFlagName)
+			if err != nil {
+				return err
+			}
+
+			pubsubClient, err := pkg.NewPubSubClient(cmd.Context(), projectID, emulatorHost, gcpCredentialFilePath)
 			if err != nil {
 				return errors.Wrap(err, "initialize pubsub client")
 			}
-			return subscribe(cmd, out, pubsubClient, args)
+			return subscribe(cmd.Context(), out, pubsubClient, topicIDs)
 		},
 	}
 }
@@ -37,10 +51,7 @@ type subscriber struct {
 }
 
 // subscribe subscribes Pub/Sub messages
-func subscribe(_ *cobra.Command, out io.Writer, pubsubClient *pkg.PubSubClient, args []string) error {
-	ctx := context.Background()
-	topicIDs := args
-
+func subscribe(ctx context.Context, out io.Writer, pubsubClient *pkg.PubSubClient, topicIDs []string) error {
 	eg := &errgroup.Group{}
 	subscribers := make(chan *subscriber, len(topicIDs))
 	for _, topicID := range topicIDs {
@@ -57,7 +68,7 @@ func subscribe(_ *cobra.Command, out io.Writer, pubsubClient *pkg.PubSubClient, 
 				return errors.Wrapf(err, "create unique subscription to %s", topic.String())
 			}
 			subscribers <- &subscriber{topic: topic, sub: sub}
-			_, _ = colorstring.Fprintln(out, fmt.Sprintf("[green][success] created subscription to %s", topic.String()))
+			_, _ = colorstring.Fprintf(out, "[green][success] created subscription to %s\n", topic.String())
 			return nil
 		})
 	}
@@ -72,7 +83,7 @@ func subscribe(_ *cobra.Command, out io.Writer, pubsubClient *pkg.PubSubClient, 
 		eg.Go(func() error {
 			err := s.sub.Receive(ctx, func(ctx context.Context, msg *pubsub.Message) {
 				msg.Ack()
-				_, _ = colorstring.Fprintln(out, fmt.Sprintf("[green][success] got message published to %s, id: %s, data: %q", s.topic.ID(), msg.ID, string(msg.Data)))
+				_, _ = colorstring.Fprintf(out, "[green][success] got message published to %s, id: %s, data: %q\n", s.topic.ID(), msg.ID, string(msg.Data))
 			})
 			return errors.Wrapf(err, "receive message published to %s through %s subscription", s.topic.ID(), s.sub.ID())
 		})
