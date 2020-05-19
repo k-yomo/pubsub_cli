@@ -36,6 +36,7 @@ Available Commands:
   publish       publish Pub/Sub message
   register_push register Pub/Sub push endpoint
   subscribe     subscribe Pub/Sub topics
+  connect       connect remote topic to local topic
 
 Flags:
   -c, --cred-file string   gcp credential file path (You can also set 'GOOGLE_APPLICATION_CREDENTIALS' to env variable)
@@ -68,6 +69,11 @@ $ pubsub_cli subscribe test_topic another_topic --cred-file=credentials.json -p=
 ### Register Push Endpoint
 ```
 $ pubsub_cli register_push test_topic http://localhost:1323/subscribe --host=localhost:8085 -p=emulator
+```
+
+### Connects Remote Topic with Local Topic
+```
+$ pubsub_cli connect your_gcp_project test_topic --host=localhost:8085 --project=emulator
 ```
 
 ## Note

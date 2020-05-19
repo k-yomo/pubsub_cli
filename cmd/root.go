@@ -43,6 +43,7 @@ func newRootCmd() *cobra.Command {
 		newPublishCmd(os.Stdin),
 		newSubscribeCmd(os.Stdin),
 		newRegisterPushCmd(os.Stdin),
+		newConnectCmd(os.Stdin),
 	)
 	return rootCmd
 }
