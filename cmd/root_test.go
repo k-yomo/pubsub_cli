@@ -105,6 +105,20 @@ func Test_newRootCmd(t *testing.T) {
 			},
 			after: func() {},
 		},
+		{
+			name:   "connect command is registered",
+			before: func() {},
+			check: func(gotCmd *cobra.Command) {
+				short := newConnectCmd(&bytes.Buffer{}).Short
+				for _, cmd := range gotCmd.Commands() {
+					if cmd.Short == short {
+						return
+					}
+				}
+				t.Errorf("newRootCmd() want %v", short)
+			},
+			after: func() {},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
