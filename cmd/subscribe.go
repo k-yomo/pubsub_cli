@@ -9,6 +9,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"golang.org/x/sync/errgroup"
+	"google.golang.org/api/iterator"
 	"io"
 )
 
@@ -17,7 +18,7 @@ func newSubscribeCmd(out io.Writer) *cobra.Command {
 	return &cobra.Command{
 		Use:     "subscribe TOPIC_ID ...",
 		Short:   "subscribe Pub/Sub topics",
-		Long:    "create subscription for given Pub/Sub topic and subscribe the topic",
+		Long:    "create subscriptions for given Pub/Sub topics(or you can set 'all' to subscribe all topics) and subscribe the topics",
 		Example: "pubsub_cli subscribe test_topic another_topic --host=localhost:8085 --project=test_project",
 		Aliases: []string{"s"},
 		Args:    cobra.MinimumNArgs(1),
@@ -52,16 +53,47 @@ type subscriber struct {
 
 // subscribe subscribes Pub/Sub messages
 func subscribe(ctx context.Context, out io.Writer, pubsubClient *pkg.PubSubClient, topicIDs []string) error {
-	eg := &errgroup.Group{}
-	subscribers := make(chan *subscriber, len(topicIDs))
-	for _, topicID := range topicIDs {
-		topicID := topicID
-		eg.Go(func() error {
-			topic, err := pubsubClient.FindOrCreateTopic(ctx, topicID)
-			if err != nil {
-				return errors.Wrapf(err, "find or create topic %s", topicID)
+	var topics []*pubsub.Topic
+	// if topic name is "all", subscribe all topics in the project
+	if topicIDs[0] == "all" {
+		topicIterator := pubsubClient.Topics(ctx)
+		for {
+			topic, err := topicIterator.Next()
+			if err == iterator.Done {
+				break
 			}
+			if err != nil {
+				return err
+			}
+			topics = append(topics, topic)
+		}
+	} else {
+		eg := &errgroup.Group{}
+		topicChan := make(chan *pubsub.Topic, len(topicIDs))
+		for _, topicID := range topicIDs {
+			topicID := topicID
+			eg.Go(func() error {
+				topic, err := pubsubClient.FindOrCreateTopic(ctx, topicID)
+				if err != nil {
+					return errors.Wrapf(err, "find or create topic %s", topicID)
+				}
+				topicChan <- topic
+				return nil
+			})
+		}
+		if err := eg.Wait(); err != nil {
+			return err
+		}
+		for topic := range topicChan {
+			topics = append(topics, topic)
+		}
+	}
 
+	eg := &errgroup.Group{}
+	subscribers := make(chan *subscriber, len(topics))
+	for _, topic := range topics {
+		topic := topic
+		eg.Go(func() error {
 			fmt.Println(fmt.Sprintf("[start]creating unique subscription to %s...", topic.String()))
 			sub, err := pubsubClient.CreateUniqueSubscription(ctx, topic)
 			if err != nil {
