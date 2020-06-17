@@ -62,8 +62,14 @@ $ pubsub_cli publish test_topic '{"key":"value"}' --project=your_gcp_project
 ```
 
 ### Subscribe
+- subscribe topics
 ```
 $ pubsub_cli subscribe test_topic another_topic --cred-file=credentials.json -p=your_gcp_project
+```
+
+- subscribe all
+```
+$ pubsub_cli subscribe all --cred-file=credentials.json -p=your_gcp_project
 ```
 
 ### Register Push Endpoint
