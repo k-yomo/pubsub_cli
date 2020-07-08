@@ -46,9 +46,9 @@ func Test_registerPush(t *testing.T) {
 				if subConfig.PushConfig.Endpoint != "http://localhost:9000" {
 					t.Errorf("registerPush() got endpoint = %v, want %v", subConfig.PushConfig.Endpoint, "http://localhost:9000")
 				}
-				// check if expirationPolicy is set to 24 hours
-				if subConfig.ExpirationPolicy != 24*time.Hour {
-					t.Errorf("registerPush() got expirationPolicy = %v, want %v", subConfig.ExpirationPolicy, 24*time.Hour)
+				// check if expirationPolicy is set to 1 hour
+				if subConfig.ExpirationPolicy != 1*time.Hour {
+					t.Errorf("registerPush() got expirationPolicy = %v, want %v", subConfig.ExpirationPolicy, 1*time.Hour)
 				}
 				sub.Delete(context.Background())
 			},
