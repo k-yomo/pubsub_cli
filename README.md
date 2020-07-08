@@ -84,4 +84,4 @@ $ pubsub_cli connect your_gcp_project test_topic --host=localhost:8085 --project
 
 ## Note
 - Created topics won't be deleted automatically. 
-- Unused subscriptions will be deleted in 24 hours.
+- Unused subscriptions will be deleted in 1 hours.

@@ -46,7 +46,7 @@ func registerPush(ctx context.Context, out io.Writer, pubsubClient *pkg.PubSubCl
 	_, _ = colorstring.Fprintf(out, "[start] registering push endpoint for %s...\n", topic.String())
 	subscriptionConfig := pubsub.SubscriptionConfig{
 		Topic:            topic,
-		ExpirationPolicy: time.Hour * 24,
+		ExpirationPolicy: time.Hour * 1,
 		PushConfig: pubsub.PushConfig{
 			Endpoint:             endpoint,
 			Attributes:           nil,
