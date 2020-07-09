@@ -9,7 +9,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"golang.org/x/sync/errgroup"
-	"google.golang.org/api/iterator"
 	"io"
 )
 
@@ -54,39 +53,15 @@ type subscriber struct {
 // subscribe subscribes Pub/Sub messages
 func subscribe(ctx context.Context, out io.Writer, pubsubClient *pkg.PubSubClient, topicIDs []string) error {
 	var topics []*pubsub.Topic
+	var err error
 	// if topic name is "all", subscribe all topics in the project
 	if topicIDs[0] == "all" {
-		topicIterator := pubsubClient.Topics(ctx)
-		for {
-			topic, err := topicIterator.Next()
-			if err == iterator.Done {
-				break
-			}
-			if err != nil {
-				return err
-			}
-			topics = append(topics, topic)
-		}
+		topics, err = pubsubClient.FindAllTopics(ctx)
 	} else {
-		eg := &errgroup.Group{}
-		topicChan := make(chan *pubsub.Topic, len(topicIDs))
-		for _, topicID := range topicIDs {
-			topicID := topicID
-			eg.Go(func() error {
-				topic, err := pubsubClient.FindOrCreateTopic(ctx, topicID)
-				if err != nil {
-					return errors.Wrapf(err, "find or create topic %s", topicID)
-				}
-				topicChan <- topic
-				return nil
-			})
-		}
-		if err := eg.Wait(); err != nil {
-			return err
-		}
-		for topic := range topicChan {
-			topics = append(topics, topic)
-		}
+		topics, err = pubsubClient.FindOrCreateTopics(ctx, topicIDs)
+	}
+	if err != nil {
+		return err
 	}
 
 	eg := &errgroup.Group{}
