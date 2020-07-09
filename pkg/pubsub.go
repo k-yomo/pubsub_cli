@@ -3,6 +3,8 @@ package pkg
 import (
 	"context"
 	"fmt"
+	"golang.org/x/sync/errgroup"
+	"google.golang.org/api/iterator"
 	"google.golang.org/grpc"
 	"time"
 
@@ -39,6 +41,46 @@ func NewPubSubClient(ctx context.Context, projectID, pubsubEmulatorHost, gcpCred
 		return nil, errors.Wrap(err, "create new pubsub client")
 	}
 	return &PubSubClient{client}, nil
+}
+
+func (pc *PubSubClient) FindAllTopics(ctx context.Context) ([]*pubsub.Topic, error) {
+	var topics []*pubsub.Topic
+	topicIterator := pc.Topics(ctx)
+	for {
+		topic, err := topicIterator.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			return nil, err
+		}
+		topics = append(topics, topic)
+	}
+	return topics, nil
+}
+
+func (pc *PubSubClient) FindOrCreateTopics(ctx context.Context, topicIDs []string) ([]*pubsub.Topic, error) {
+	var topics []*pubsub.Topic
+	eg := &errgroup.Group{}
+	topicChan := make(chan *pubsub.Topic, len(topicIDs))
+	for _, topicID := range topicIDs {
+		topicID := topicID
+		eg.Go(func() error {
+			topic, err := pc.FindOrCreateTopic(ctx, topicID)
+			if err != nil {
+				return errors.Wrapf(err, "find or create topic %s", topicID)
+			}
+			topicChan <- topic
+			return nil
+		})
+	}
+	if err := eg.Wait(); err != nil {
+		return nil, err
+	}
+	for topic := range topicChan {
+		topics = append(topics, topic)
+	}
+	return topics, nil
 }
 
 // FindOrCreateTopic finds the topic or create if not exists.
