@@ -63,7 +63,7 @@ func (pc *PubSubClient) FindAllTopics(ctx context.Context) ([]*pubsub.Topic, err
 // returned topics are unordered
 func (pc *PubSubClient) FindOrCreateTopics(ctx context.Context, topicIDs []string) ([]*pubsub.Topic, error) {
 	var topics []*pubsub.Topic
-	eg := &errgroup.Group{}
+	eg := errgroup.Group{}
 	topicChan := make(chan *pubsub.Topic, len(topicIDs))
 	for _, topicID := range topicIDs {
 		topicID := topicID
@@ -79,6 +79,8 @@ func (pc *PubSubClient) FindOrCreateTopics(ctx context.Context, topicIDs []strin
 	if err := eg.Wait(); err != nil {
 		return nil, err
 	}
+	close(topicChan)
+
 	for topic := range topicChan {
 		topics = append(topics, topic)
 	}
@@ -92,7 +94,8 @@ func (pc *PubSubClient) FindOrCreateTopic(ctx context.Context, topicID string) (
 	exists, err := topic.Exists(ctx)
 	if err != nil {
 		return nil, err
-	} else if exists {
+	}
+	if exists {
 		return topic, nil
 	}
 
@@ -107,7 +110,7 @@ func (pc *PubSubClient) FindOrCreateTopic(ctx context.Context, topicID string) (
 func (pc *PubSubClient) CreateUniqueSubscription(ctx context.Context, topic *pubsub.Topic) (*pubsub.Subscription, error) {
 	subscriptionConfig := pubsub.SubscriptionConfig{
 		Topic:            topic,
-		ExpirationPolicy: time.Hour * 1,
+		ExpirationPolicy: 24 * time.Hour,
 		Labels:           map[string]string{"created_by": "pubsub_cli"},
 	}
 	sub, err := pc.CreateSubscription(ctx, fmt.Sprintf("pubsub_cli_%s", xid.New().String()), subscriptionConfig)

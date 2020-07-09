@@ -24,9 +24,9 @@ func newConnectCmd(out io.Writer) *cobra.Command {
 This command is useful when you want to make local push subscription subscribe Pub/Sub topic on GCP.
 You need to be authenticated to subscribe the topic on GCP in some way listed in README and also need to set local emulator host either from env variable or from --host option.
 `,
-		Example: "pubsub_cli connect gcp_project test_topic --host=localhost:8085 --project=dev",
+		Example: "pubsub_cli connect gcp_project test_topic --host=localhost:8085 --project=emulator",
 		Aliases: []string{"c"},
-		Args:    cobra.ExactArgs(2),
+		Args:    cobra.MinimumNArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := context.Background()
 			remoteProjectID := args[0]
@@ -70,13 +70,27 @@ type subscriberForConnect struct {
 
 // connect connects remote Pub/Sub topics to local Pub/Sub topics
 func connect(ctx context.Context, out io.Writer, remotePubsubClient, localPubsubClient *pkg.PubSubClient, topicIDs []string) error {
-	remoteTopics, err := remotePubsubClient.FindOrCreateTopics(ctx, topicIDs)
-	if err != nil {
-		return errors.Wrapf(err, "find or create remote topic %#v", topicIDs)
+	var remoteTopics []*pubsub.Topic
+	var err error
+	if topicIDs[0] == "all" {
+		remoteTopics, err = remotePubsubClient.FindAllTopics(ctx)
+		if err != nil {
+			return errors.Wrap(err, "find all topics %#v")
+		}
+	} else {
+		remoteTopics, err = remotePubsubClient.FindOrCreateTopics(ctx, topicIDs)
+		if err != nil {
+			return errors.Wrapf(err, "find or create remote topics %#v", topicIDs)
+		}
 	}
-	localTopics, err := localPubsubClient.FindOrCreateTopics(ctx, topicIDs)
+
+	remoteTopicIDs := make([]string, len(remoteTopics))
+	for i, t := range remoteTopics {
+		remoteTopicIDs[i] = t.ID()
+	}
+	localTopics, err := localPubsubClient.FindOrCreateTopics(ctx, remoteTopicIDs)
 	if err != nil {
-		return errors.Wrapf(err, "find or create local topic %#v", topicIDs)
+		return errors.Wrapf(err, "find or create local topics %#v", remoteTopicIDs)
 	}
 
 	sort.Slice(remoteTopics, func(i, j int) bool {
@@ -92,10 +106,10 @@ func connect(ctx context.Context, out io.Writer, remotePubsubClient, localPubsub
 		remoteTopic := topic
 		localTopic := localTopics[i]
 		eg.Go(func() error {
-			fmt.Println(fmt.Sprintf("[start]creating unique subscription to %s...", topic.String()))
+			fmt.Println(fmt.Sprintf("[start]creating unique subscription to %s...", remoteTopic.String()))
 			sub, err := remotePubsubClient.CreateUniqueSubscription(ctx, remoteTopic)
 			if err != nil {
-				return errors.Wrapf(err, "create unique subscription to %s", topic.String())
+				return errors.Wrapf(err, "create unique subscription to %s", remoteTopic.String())
 			}
 			subscribers <- &subscriberForConnect{remoteTopic: remoteTopic, localTopic: localTopic, sub: sub}
 			_, _ = colorstring.Fprintf(out, "[green][success] created subscription to %s\n", remoteTopic.String())
@@ -106,7 +120,7 @@ func connect(ctx context.Context, out io.Writer, remotePubsubClient, localPubsub
 		return err
 	}
 	close(subscribers)
-	_, _ = colorstring.Fprintln(out, "[green][success] topics are now connected!\n")
+	_, _ = colorstring.Fprintln(out, "\n[green][success] topics are now connected!\n")
 
 	fmt.Println("[start] waiting for publish...")
 	for s := range subscribers {

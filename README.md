@@ -90,4 +90,4 @@ $ pubsub_cli connect your_gcp_project all --host=localhost:8085 --project=emulat
 
 ## Note
 - Created topics won't be deleted automatically. 
-- Unused subscriptions will be deleted in 1 hour.
+- Unused subscriptions will be deleted in 24 hours.
