@@ -59,6 +59,8 @@ func (pc *PubSubClient) FindAllTopics(ctx context.Context) ([]*pubsub.Topic, err
 	return topics, nil
 }
 
+// FindOrCreateTopics finds the given topics or creates if not exists.
+// returned topics are unordered
 func (pc *PubSubClient) FindOrCreateTopics(ctx context.Context, topicIDs []string) ([]*pubsub.Topic, error) {
 	var topics []*pubsub.Topic
 	eg := &errgroup.Group{}

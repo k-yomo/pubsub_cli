@@ -7,8 +7,10 @@ import (
 	"github.com/k-yomo/pubsub_cli/pkg"
 	"github.com/mitchellh/colorstring"
 	"github.com/pkg/errors"
+	"golang.org/x/sync/errgroup"
 	"io"
 	"os"
+	"sort"
 
 	"github.com/spf13/cobra"
 )
@@ -16,9 +18,9 @@ import (
 // newConnectCmd returns the command to connect topic
 func newConnectCmd(out io.Writer) *cobra.Command {
 	return &cobra.Command{
-		Use:   "connect PROJECT_ID TOPIC_ID",
-		Short: "connect remote topic to local topic",
-		Long: `Connect subscribes Pub/Sub topic on GCP and publish got data to local topic on Pub/Sub emulator.
+		Use:   "connect PROJECT_ID TOPIC_ID ...",
+		Short: "connect remote topics to local topics",
+		Long: `Connect subscribes Pub/Sub topics(or you can set 'all' to subscribe all topics) on GCP and publish got data to local topics on Pub/Sub emulator.
 This command is useful when you want to make local push subscription subscribe Pub/Sub topic on GCP.
 You need to be authenticated to subscribe the topic on GCP in some way listed in README and also need to set local emulator host either from env variable or from --host option.
 `,
@@ -28,7 +30,7 @@ You need to be authenticated to subscribe the topic on GCP in some way listed in
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := context.Background()
 			remoteProjectID := args[0]
-			topicID := args[1]
+			topicIDs := args[1:]
 			projectID, err := cmd.Flags().GetString(projectFlagName)
 			if err != nil {
 				return err
@@ -55,42 +57,76 @@ You need to be authenticated to subscribe the topic on GCP in some way listed in
 				return errors.Wrap(err, "initialize pubsub client")
 			}
 
-			return connect(ctx, out, remotePubsubClient, localPubsubClient, topicID)
+			return connect(ctx, out, remotePubsubClient, localPubsubClient, topicIDs)
 		},
 	}
 }
 
-// connect connects remote Pub/Sub topic to local Pub/Sub topic
-func connect(ctx context.Context, out io.Writer, remotePubsubClient, localPubsubClient *pkg.PubSubClient, topicID string) error {
-	remoteTopic, err := remotePubsubClient.FindOrCreateTopic(ctx, topicID)
+type subscriberForConnect struct {
+	remoteTopic *pubsub.Topic
+	localTopic  *pubsub.Topic
+	sub         *pubsub.Subscription
+}
+
+// connect connects remote Pub/Sub topics to local Pub/Sub topics
+func connect(ctx context.Context, out io.Writer, remotePubsubClient, localPubsubClient *pkg.PubSubClient, topicIDs []string) error {
+	remoteTopics, err := remotePubsubClient.FindOrCreateTopics(ctx, topicIDs)
 	if err != nil {
-		return errors.Wrapf(err, "find or create remote topic %s", topicID)
+		return errors.Wrapf(err, "find or create remote topic %#v", topicIDs)
 	}
-	localTopic, err := localPubsubClient.FindOrCreateTopic(ctx, topicID)
+	localTopics, err := localPubsubClient.FindOrCreateTopics(ctx, topicIDs)
 	if err != nil {
-		return errors.Wrapf(err, "find or create local topic %s", topicID)
+		return errors.Wrapf(err, "find or create local topic %#v", topicIDs)
 	}
 
-	fmt.Println(fmt.Sprintf("[start]creating unique subscription to %s...", remoteTopic.String()))
-	sub, err := remotePubsubClient.CreateUniqueSubscription(ctx, remoteTopic)
-	if err != nil {
-		return errors.Wrapf(err, "create unique subscription to %s", remoteTopic.String())
+	sort.Slice(remoteTopics, func(i, j int) bool {
+		return remoteTopics[i].ID() > remoteTopics[j].ID()
+	})
+	sort.Slice(localTopics, func(i, j int) bool {
+		return localTopics[i].ID() > localTopics[j].ID()
+	})
+
+	eg := &errgroup.Group{}
+	subscribers := make(chan *subscriberForConnect, len(remoteTopics))
+	for i, topic := range remoteTopics {
+		remoteTopic := topic
+		localTopic := localTopics[i]
+		eg.Go(func() error {
+			fmt.Println(fmt.Sprintf("[start]creating unique subscription to %s...", topic.String()))
+			sub, err := remotePubsubClient.CreateUniqueSubscription(ctx, remoteTopic)
+			if err != nil {
+				return errors.Wrapf(err, "create unique subscription to %s", topic.String())
+			}
+			subscribers <- &subscriberForConnect{remoteTopic: remoteTopic, localTopic: localTopic, sub: sub}
+			_, _ = colorstring.Fprintf(out, "[green][success] created subscription to %s\n", remoteTopic.String())
+			return nil
+		})
 	}
-	_, _ = colorstring.Fprintln(out, fmt.Sprintf("[green][success] topic %s is now connected!\n", topicID))
+	if err := eg.Wait(); err != nil {
+		return err
+	}
+	close(subscribers)
+	_, _ = colorstring.Fprintln(out, "[green][success] topics are now connected!\n")
 
 	fmt.Println("[start] waiting for publish...")
-	err = sub.Receive(context.Background(), func(ctx context.Context, msg *pubsub.Message) {
-		_, _ = colorstring.Println(fmt.Sprintf("[green][success] Got message: %q", string(msg.Data)))
-		messageID, err := localTopic.Publish(ctx, msg).Get(ctx)
-		if err != nil {
-			_, _ = colorstring.Fprintln(out, fmt.Sprintf("[red][error] publish message with data = %s", msg.Data))
-			return
-		}
-		_, _ = colorstring.Fprintln(out, fmt.Sprintf("[green][success] published message to %s successfully, message ID = %s\n", localTopic.String(), messageID))
-		msg.Ack()
-	})
-	if err != nil {
-		return errors.Wrapf(err, "subscribe %s failed", remoteTopic.String())
+	for s := range subscribers {
+		s := s
+		eg.Go(func() error {
+			err := s.sub.Receive(context.Background(), func(ctx context.Context, msg *pubsub.Message) {
+				_, _ = colorstring.Println(fmt.Sprintf("[green][success] Got message: %q", string(msg.Data)))
+				messageID, err := s.localTopic.Publish(ctx, msg).Get(ctx)
+				if err != nil {
+					_, _ = colorstring.Fprintln(out, fmt.Sprintf("[red][error] publish message with data = %s", msg.Data))
+					return
+				}
+				_, _ = colorstring.Fprintln(out, fmt.Sprintf("[green][success] published message to %s successfully, message ID = %s\n", s.localTopic.String(), messageID))
+				msg.Ack()
+			})
+			if err != nil {
+				return errors.Wrapf(err, "subscribe %s failed", s.remoteTopic.String())
+			}
+			return nil
+		})
 	}
-	return nil
+	return eg.Wait()
 }
