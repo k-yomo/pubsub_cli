@@ -59,6 +59,67 @@ func (pc *PubSubClient) FindAllTopics(ctx context.Context) ([]*pubsub.Topic, err
 	return topics, nil
 }
 
+// FindTopic finds the topic or return nil if not exists.
+func (pc *PubSubClient) FindTopic(ctx context.Context, topicID string) (*pubsub.Topic, error) {
+	topic := pc.Topic(topicID)
+
+	exists, err := topic.Exists(ctx)
+	if err != nil {
+		return nil, errors.Wrapf(err, "find topic %s", topicID)
+	}
+	if exists {
+		return topic, nil
+	}
+	return nil, nil
+}
+
+// FindTopics finds the given topics.
+// returned topics are unordered
+func (pc *PubSubClient) FindTopics(ctx context.Context, topicIDs []string) ([]*pubsub.Topic, error) {
+	var topics []*pubsub.Topic
+	eg := errgroup.Group{}
+	topicChan := make(chan *pubsub.Topic, len(topicIDs))
+	for _, topicID := range topicIDs {
+		topicID := topicID
+		eg.Go(func() error {
+			topic, err := pc.FindTopic(ctx, topicID)
+			if err != nil {
+				return err
+			}
+			if topic != nil {
+				topicChan <- topic
+			}
+			return nil
+		})
+	}
+	if err := eg.Wait(); err != nil {
+		return nil, err
+	}
+	close(topicChan)
+
+	for topic := range topicChan {
+		topics = append(topics, topic)
+	}
+	return topics, nil
+}
+
+// FindOrCreateTopic finds the topic or create if not exists.
+func (pc *PubSubClient) FindOrCreateTopic(ctx context.Context, topicID string) (*pubsub.Topic, error) {
+	topic, err := pc.FindTopic(ctx, topicID)
+	if err != nil {
+		return nil, err
+	}
+	if topic != nil {
+		return topic, nil
+	}
+
+	topic, err = pc.CreateTopic(ctx, topicID)
+	if err != nil {
+		return nil, errors.Wrapf(err, "create topic %s", topicID)
+	}
+	return topic, nil
+}
+
 // FindOrCreateTopics finds the given topics or creates if not exists.
 // returned topics are unordered
 func (pc *PubSubClient) FindOrCreateTopics(ctx context.Context, topicIDs []string) ([]*pubsub.Topic, error) {
@@ -85,25 +146,6 @@ func (pc *PubSubClient) FindOrCreateTopics(ctx context.Context, topicIDs []strin
 		topics = append(topics, topic)
 	}
 	return topics, nil
-}
-
-// FindOrCreateTopic finds the topic or create if not exists.
-func (pc *PubSubClient) FindOrCreateTopic(ctx context.Context, topicID string) (*pubsub.Topic, error) {
-	topic := pc.Topic(topicID)
-
-	exists, err := topic.Exists(ctx)
-	if err != nil {
-		return nil, err
-	}
-	if exists {
-		return topic, nil
-	}
-
-	topic, err = pc.CreateTopic(ctx, topicID)
-	if err != nil {
-		return nil, err
-	}
-	return topic, nil
 }
 
 // CreateUniqueSubscription creates an unique subscription to given topic

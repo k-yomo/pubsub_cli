@@ -61,6 +61,11 @@ $ gcloud auth application-default login
 $ pubsub_cli publish test_topic '{"key":"value"}' --project=your_gcp_project
 ```
 
+- publish a message to the topic (create if not exist)
+```
+$ pubsub_cli publish new_topic '{"topic":"will be created"}' --create-if-not-exist -p=your_gcp_project
+```
+
 ### Subscribe
 - subscribe topics
 ```

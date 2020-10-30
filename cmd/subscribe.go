@@ -14,11 +14,11 @@ import (
 
 // newSubscribeCmd returns the command to subscribe messages
 func newSubscribeCmd(out io.Writer) *cobra.Command {
-	return &cobra.Command{
+	command :=  &cobra.Command{
 		Use:     "subscribe TOPIC_ID ...",
 		Short:   "subscribe Pub/Sub topics",
-		Long:    "create subscriptions for given Pub/Sub topics(or you can set 'all' to subscribe all topics) and subscribe the topics",
-		Example: "pubsub_cli subscribe test_topic another_topic --host=localhost:8085 --project=test_project",
+		Long:    "create temporary subscriptions for given Pub/Sub topics(or you can set 'all' to subscribe all topics) and subscribe the topics",
+		Example: "pubsub_cli subscribe test_topic another_topic --create-if-not-exist --host=localhost:8085 --project=test_project",
 		Aliases: []string{"s"},
 		Args:    cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -35,14 +35,20 @@ func newSubscribeCmd(out io.Writer) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			createTopicIfNotExist, err := cmd.Flags().GetBool(createTopicIfNotExistFlagName)
+			if err != nil {
+				return err
+			}
 
 			pubsubClient, err := pkg.NewPubSubClient(cmd.Context(), projectID, emulatorHost, gcpCredentialFilePath)
 			if err != nil {
 				return errors.Wrap(err, "initialize pubsub client")
 			}
-			return subscribe(cmd.Context(), out, pubsubClient, topicIDs)
+			return subscribe(cmd.Context(), out, pubsubClient, topicIDs, createTopicIfNotExist)
 		},
 	}
+	command.PersistentFlags().Bool(createTopicIfNotExistFlagName, false, "create topics if not exist")
+	return command
 }
 
 type subscriber struct {
@@ -51,17 +57,37 @@ type subscriber struct {
 }
 
 // subscribe subscribes Pub/Sub messages
-func subscribe(ctx context.Context, out io.Writer, pubsubClient *pkg.PubSubClient, topicIDs []string) error {
+func subscribe(ctx context.Context, out io.Writer, pubsubClient *pkg.PubSubClient, topicIDs []string, createTopicIfNotExist bool) error {
 	var topics []*pubsub.Topic
 	var err error
 	// if topic name is "all", subscribe all topics in the project
 	if topicIDs[0] == "all" {
 		topics, err = pubsubClient.FindAllTopics(ctx)
 	} else {
-		topics, err = pubsubClient.FindOrCreateTopics(ctx, topicIDs)
+		if createTopicIfNotExist {
+			topics, err = pubsubClient.FindOrCreateTopics(ctx, topicIDs)
+		} else {
+			topics, err = pubsubClient.FindTopics(ctx, topicIDs)
+		}
 	}
 	if err != nil {
 		return err
+	}
+	if len(topics) == 0 {
+		return errors.Errorf("topics %v not found", topicIDs)
+	}
+	if len(topics) != len(topicIDs) {
+		topicIDExistMap := map[string]bool{}
+		for _, topic := range topics {
+			topicIDExistMap[topic.ID()] = true
+		}
+
+		for _, topicID := range topicIDs {
+			if !topicIDExistMap[topicID] {
+				_, _ = colorstring.Fprintf(out, "[yellow][warn] topic %s is not found\n", topicID)
+			}
+		}
+		_, _ = colorstring.Fprintln(out, "[yellow][warn] if you want to create topics if not exist, set --create-if-not-exist flag")
 	}
 
 	eg := &errgroup.Group{}
@@ -69,7 +95,7 @@ func subscribe(ctx context.Context, out io.Writer, pubsubClient *pkg.PubSubClien
 	for _, topic := range topics {
 		topic := topic
 		eg.Go(func() error {
-			fmt.Println(fmt.Sprintf("[start]creating unique subscription to %s...", topic.String()))
+			fmt.Fprintf(out, "[start] creating unique subscription to %s...\n", topic.String())
 			sub, err := pubsubClient.CreateUniqueSubscription(ctx, topic)
 			if err != nil {
 				return errors.Wrapf(err, "create unique subscription to %s", topic.String())

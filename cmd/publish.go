@@ -12,7 +12,7 @@ import (
 
 // newPublishCmd returns the command to publish message
 func newPublishCmd(out io.Writer) *cobra.Command {
-	return &cobra.Command{
+	command := &cobra.Command{
 		Use:     "publish TOPIC_ID DATA",
 		Short:   "publish Pub/Sub message",
 		Long:    "publish new message to given topic with given data",
@@ -34,21 +34,36 @@ func newPublishCmd(out io.Writer) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			createTopicIfNotExist, err := cmd.Flags().GetBool(createTopicIfNotExistFlagName)
+			if err != nil {
+				return err
+			}
 
 			pubsubClient, err := pkg.NewPubSubClient(cmd.Context(), projectID, emulatorHost, gcpCredentialFilePath)
 			if err != nil {
 				return errors.Wrap(err, "initialize pubsub client")
 			}
-			return publish(cmd.Context(), out, pubsubClient, topicID, data)
+			return publish(cmd.Context(), out, pubsubClient, topicID, data, createTopicIfNotExist)
 		},
 	}
+	command.PersistentFlags().Bool(createTopicIfNotExistFlagName, false, "create topics if not exist")
+	return command
 }
 
 // publish publishes Pub/Sub message
-func publish(ctx context.Context, out io.Writer, pubsubClient *pkg.PubSubClient, topicID, data string) error {
-	topic, err := pubsubClient.FindOrCreateTopic(ctx, topicID)
+func publish(ctx context.Context, out io.Writer, pubsubClient *pkg.PubSubClient, topicID, data string, createTopicIfNotExist bool) error {
+	var topic *pubsub.Topic
+	var err error
+	if createTopicIfNotExist {
+		topic, err = pubsubClient.FindOrCreateTopic(ctx, topicID)
+	} else {
+		topic, err = pubsubClient.FindTopic(ctx, topicID)
+	}
 	if err != nil {
-		return errors.Wrapf(err, "find or create topic %s", topicID)
+		return err
+	}
+	if topic == nil {
+		return errors.Errorf("topic %s is not found", topicID)
 	}
 
 	_, _ = colorstring.Fprintf(out, "[start] publishing message to %s...\n", topic.String())

@@ -11,6 +11,8 @@ import (
 const projectFlagName = "project"
 const hostFlagName = "host"
 const credFileFlagName = "cred-file"
+const createTopicIfNotExistFlagName = "create-if-not-exist"
+
 
 var version string
 
@@ -18,7 +20,7 @@ var version string
 func Exec() {
 	rootCmd := newRootCmd()
 	if err := rootCmd.Execute(); err != nil {
-		_, _ = colorstring.Println(fmt.Sprintf("[red][error]%v", err))
+		_, _ = colorstring.Printf("[red][error] %v\n", err)
 		os.Exit(1)
 	}
 }
