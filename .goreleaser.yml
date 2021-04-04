@@ -27,8 +27,8 @@ changelog:
     exclude:
     - '^docs:'
     - '^test:'
-brews:
-  - github:
+brew
+  - tap:
       owner: k-yomo
       name: homebrew-pubsub_cli
     folder: Formula
