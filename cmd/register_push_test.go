@@ -32,7 +32,7 @@ func Test_registerPush(t *testing.T) {
 			mockSubscriptionID: "test",
 			args:               args{rootCmd: rootCmd, args: []string{"register_push", "test_topic", "http://localhost:9000"}},
 			check: func() {
-				sub := pubsubClient.Subscription("test")
+				sub := pubsubClient.Subscription(pkg.UUID())
 				subConfig, err := sub.Config(context.Background())
 				if err != nil {
 					t.Fatal(err)
@@ -72,7 +72,7 @@ func Test_registerPush(t *testing.T) {
 				cmd.PersistentFlags().String(hostFlagName, "host", "")
 				cmd.PersistentFlags().String(credFileFlagName, "cred.json", "")
 				return cmd
-			}(), args: []string{"register_push", "1", "http://localhost:9000"}},
+			}(), args: []string{"register_push", "test_topic", "http://localhost:9000"}},
 			check:   func() {},
 			wantErr: true,
 		},
@@ -83,7 +83,7 @@ func Test_registerPush(t *testing.T) {
 				cmd.PersistentFlags().String(projectFlagName, "project", "")
 				cmd.PersistentFlags().String(credFileFlagName, "cred.json", "")
 				return cmd
-			}(), args: []string{"register_push", "1", "http://localhost:9000"}},
+			}(), args: []string{"register_push", "test_topic", "http://localhost:9000"}},
 			check:   func() {},
 			wantErr: true,
 		},
@@ -94,7 +94,7 @@ func Test_registerPush(t *testing.T) {
 				cmd.PersistentFlags().String(projectFlagName, "project", "")
 				cmd.PersistentFlags().String(hostFlagName, "host", "")
 				return cmd
-			}(), args: []string{"register_push", "1", "http://localhost:9000"}},
+			}(), args: []string{"register_push", "test_topic", "http://localhost:9000"}},
 			check:   func() {},
 			wantErr: true,
 		},
