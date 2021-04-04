@@ -6,15 +6,16 @@ import (
 	"github.com/k-yomo/pubsub_cli/pkg"
 	"github.com/spf13/cobra"
 	"testing"
-	"time"
 )
 
-func Test_registerPush(t *testing.T) {
+func Test_createSubscription(t *testing.T) {
 	pubsubClient, err := pkg.NewTestPubSubClient(t)
 	if err != nil {
 		t.Fatal(err)
 	}
 	rootCmd := newTestRootCmd(t)
+
+	subscriptionID := pkg.UUID()
 
 	type args struct {
 		rootCmd *cobra.Command
@@ -28,11 +29,11 @@ func Test_registerPush(t *testing.T) {
 		wantErr            bool
 	}{
 		{
-			name:               "push subscription is registered successfully",
+			name:               "subscription is created successfully",
 			mockSubscriptionID: "test",
-			args:               args{rootCmd: rootCmd, args: []string{"register_push", "test_topic", "http://localhost:9000"}},
+			args:               args{rootCmd: rootCmd, args: []string{"create_subscription", "test_topic", subscriptionID}},
 			check: func() {
-				sub := pubsubClient.Subscription("test")
+				sub := pubsubClient.Subscription(subscriptionID)
 				subConfig, err := sub.Config(context.Background())
 				if err != nil {
 					t.Fatal(err)
@@ -40,28 +41,14 @@ func Test_registerPush(t *testing.T) {
 				topic := "test_topic"
 				// check if topic is collect
 				if subConfig.Topic.ID() != topic {
-					t.Errorf("registerPush() got topic = %v, want %v", subConfig.Topic.String(), topic)
-				}
-				// check if endpoint is collect
-				if subConfig.PushConfig.Endpoint != "http://localhost:9000" {
-					t.Errorf("registerPush() got endpoint = %v, want %v", subConfig.PushConfig.Endpoint, "http://localhost:9000")
-				}
-				// check if expirationPolicy is set to 24 hours
-				if subConfig.ExpirationPolicy != 24*time.Hour {
-					t.Errorf("registerPush() got expirationPolicy = %v, want %v", subConfig.ExpirationPolicy, 24*time.Hour)
+					t.Errorf("createSubscription() got topic = %v, want %v", subConfig.Topic.String(), topic)
 				}
 				sub.Delete(context.Background())
 			},
 		},
 		{
 			name:    "push subscription with invalid topic name causes error",
-			args:    args{rootCmd: rootCmd, args: []string{"register_push", "1", "http://localhost:9000"}},
-			check:   func() {},
-			wantErr: true,
-		},
-		{
-			name:    "push subscription with invalid endpoint causes error",
-			args:    args{rootCmd: rootCmd, args: []string{"register_push", "test_topic", "invalid"}},
+			args:    args{rootCmd: rootCmd, args: []string{"create_subscription", "a", "test_topic_sub"}},
 			check:   func() {},
 			wantErr: true,
 		},
@@ -72,7 +59,7 @@ func Test_registerPush(t *testing.T) {
 				cmd.PersistentFlags().String(hostFlagName, "host", "")
 				cmd.PersistentFlags().String(credFileFlagName, "cred.json", "")
 				return cmd
-			}(), args: []string{"register_push", "1", "http://localhost:9000"}},
+			}(), args: []string{"create_subscription", "test_topic", "test_topic_sub"}},
 			check:   func() {},
 			wantErr: true,
 		},
@@ -83,7 +70,7 @@ func Test_registerPush(t *testing.T) {
 				cmd.PersistentFlags().String(projectFlagName, "project", "")
 				cmd.PersistentFlags().String(credFileFlagName, "cred.json", "")
 				return cmd
-			}(), args: []string{"register_push", "1", "http://localhost:9000"}},
+			}(), args: []string{"create_subscription", "test_topic", "test_topic_sub"}},
 			check:   func() {},
 			wantErr: true,
 		},
@@ -94,7 +81,7 @@ func Test_registerPush(t *testing.T) {
 				cmd.PersistentFlags().String(projectFlagName, "project", "")
 				cmd.PersistentFlags().String(hostFlagName, "host", "")
 				return cmd
-			}(), args: []string{"register_push", "1", "http://localhost:9000"}},
+			}(), args: []string{"create_subscription", "test_topic", "test_topic_sub"}},
 			check:   func() {},
 			wantErr: true,
 		},
@@ -105,13 +92,13 @@ func Test_registerPush(t *testing.T) {
 			defer clear()
 
 			out := &bytes.Buffer{}
-			cmd := newRegisterPushCmd(out)
+			cmd := newCreateSubscriptionCmd(out)
 			tt.args.rootCmd.SetArgs(tt.args.args)
 			tt.args.rootCmd.AddCommand(cmd)
 
 			err := tt.args.rootCmd.Execute()
 			if (err != nil) != tt.wantErr {
-				t.Errorf("registerPush() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("createSubscription() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			tt.check()

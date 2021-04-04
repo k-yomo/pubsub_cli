@@ -9,7 +9,8 @@ func newTestRootCmd(t *testing.T) *cobra.Command {
 	t.Helper()
 
 	rootCmd := newRootCmd()
-	rootCmd.PersistentFlags().Set("project", "test")
-	rootCmd.PersistentFlags().Set("host", "localhost:8085")
+	rootCmd.PersistentFlags().Set(projectFlagName, "test")
+	rootCmd.PersistentFlags().Set(hostFlagName, "localhost:8085")
+	rootCmd.PersistentFlags().Set(createTopicIfNotExistFlagName, "")
 	return rootCmd
 }

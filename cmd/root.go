@@ -13,7 +13,6 @@ const hostFlagName = "host"
 const credFileFlagName = "cred-file"
 const createTopicIfNotExistFlagName = "create-if-not-exist"
 
-
 var version string
 
 // Exec executes command
@@ -44,6 +43,7 @@ func newRootCmd() *cobra.Command {
 	rootCmd.AddCommand(
 		newPublishCmd(os.Stdin),
 		newSubscribeCmd(os.Stdin),
+		newCreateSubscriptionCmd(os.Stdin),
 		newRegisterPushCmd(os.Stdin),
 		newConnectCmd(os.Stdin),
 	)

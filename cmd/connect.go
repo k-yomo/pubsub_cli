@@ -20,9 +20,9 @@ func newConnectCmd(out io.Writer) *cobra.Command {
 	return &cobra.Command{
 		Use:   "connect PROJECT_ID TOPIC_ID ...",
 		Short: "connect remote topics to local topics",
-		Long: `Connect subscribes Pub/Sub topics(or you can set 'all' to subscribe all topics) on GCP and publish got data to local topics on Pub/Sub emulator.
-This command is useful when you want to make local push subscription subscribe Pub/Sub topic on GCP.
-You need to be authenticated to subscribe the topic on GCP in some way listed in README and also need to set local emulator host either from env variable or from --host option.
+		Long: `Connect subscribes Pub/Sub topics(or you can set 'all' to createSubscription all topics) on GCP and publish got data to local topics on Pub/Sub emulator.
+This command is useful when you want to make local push subscription createSubscription Pub/Sub topic on GCP.
+You need to be authenticated to createSubscription the topic on GCP in some way listed in README and also need to set local emulator host either from env variable or from --host option.
 `,
 		Example: "pubsub_cli connect gcp_project test_topic --host=localhost:8085 --project=emulator",
 		Aliases: []string{"c"},
@@ -137,7 +137,7 @@ func connect(ctx context.Context, out io.Writer, remotePubsubClient, localPubsub
 				msg.Ack()
 			})
 			if err != nil {
-				return errors.Wrapf(err, "subscribe %s failed", s.remoteTopic.String())
+				return errors.Wrapf(err, "createSubscription %s failed", s.remoteTopic.String())
 			}
 			return nil
 		})

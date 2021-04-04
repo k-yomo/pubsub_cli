@@ -32,7 +32,7 @@ func Test_subscribe(t *testing.T) {
 				cmd.PersistentFlags().String(hostFlagName, "host", "")
 				cmd.PersistentFlags().String(credFileFlagName, "cred.json", "")
 				return cmd
-			}(), args: []string{"publish", "test_topic", "hello"}},
+			}(), args: []string{"subscribe", "test_topic", "test_topic2"}},
 			wantErr: true,
 		},
 		{
@@ -42,7 +42,7 @@ func Test_subscribe(t *testing.T) {
 				cmd.PersistentFlags().String(projectFlagName, "project", "")
 				cmd.PersistentFlags().String(credFileFlagName, "cred.json", "")
 				return cmd
-			}(), args: []string{"publish", "test_topic", "hello"}},
+			}(), args: []string{"subscribe", "test_topic", "test_topic2"}},
 			wantErr: true,
 		},
 		{
@@ -52,7 +52,7 @@ func Test_subscribe(t *testing.T) {
 				cmd.PersistentFlags().String(projectFlagName, "project", "")
 				cmd.PersistentFlags().String(hostFlagName, "host", "")
 				return cmd
-			}(), args: []string{"publish", "test_topic", "hello"}},
+			}(), args: []string{"subscribe", "test_topic", "test_topic2"}},
 			wantErr: true,
 		},
 		// TODO: test regular cases

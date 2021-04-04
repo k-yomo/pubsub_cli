@@ -58,39 +58,44 @@ For more detail and about the other ways to authenticate, please refer to [offic
 ### Publish
 ```
 $ gcloud auth application-default login
-$ pubsub_cli publish test_topic '{"key":"value"}' --project=your_gcp_project
+$ pubsub_cli publish test_topic '{"key":"value"}' -p your_gcp_project
 ```
 
 - publish a message to the topic (create if not exist)
 ```
-$ pubsub_cli publish new_topic '{"topic":"will be created"}' --create-if-not-exist -p=your_gcp_project
+$ pubsub_cli publish new_topic '{"topic":"will be created"}' --create-if-not-exist -p your_gcp_project
 ```
 
 ### Subscribe
 - subscribe topics
 ```
-$ pubsub_cli subscribe test_topic another_topic --cred-file=credentials.json -p=your_gcp_project
+$ pubsub_cli subscribe test_topic another_topic -c credentials.json -p your_gcp_project
 ```
 
 - subscribe all
 ```
-$ pubsub_cli subscribe all --cred-file=credentials.json -p=your_gcp_project
+$ pubsub_cli subscribe all -c credentials.json -p your_gcp_project
+```
+
+### Create Subscription
+```
+$ pubsub_cli cs test_topic test_topic_sub --create-if-not-exist -h localhost:8085 -p emulator
 ```
 
 ### Register Push Endpoint
 ```
-$ pubsub_cli register_push test_topic http://localhost:1323/subscribe --host=localhost:8085 -p=emulator
+$ pubsub_cli register_push test_topic http://localhost:1323/subscribe -h localhost:8085 -p emulator
 ```
 
 ### Connects Remote Topic with Local Topic
 - connect topics
 ```
-$ pubsub_cli connect your_gcp_project topic1 topic2 --host=localhost:8085 --project=emulator
+$ pubsub_cli connect your_gcp_project topic1 topic2 -host localhost:8085 -p emulator
 ```
 
 - connect all
 ```
-$ pubsub_cli connect your_gcp_project all --host=localhost:8085 --project=emulator
+$ pubsub_cli connect your_gcp_project all -h localhost:8085 -p emulator
 ```
 
 ## Note

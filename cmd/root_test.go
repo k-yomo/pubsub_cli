@@ -92,6 +92,20 @@ func Test_newRootCmd(t *testing.T) {
 			after: func() {},
 		},
 		{
+			name:   "create_subscription command is registered",
+			before: func() {},
+			check: func(gotCmd *cobra.Command) {
+				short := newCreateSubscriptionCmd(&bytes.Buffer{}).Short
+				for _, cmd := range gotCmd.Commands() {
+					if cmd.Short == short {
+						return
+					}
+				}
+				t.Errorf("newRootCmd() want %v", short)
+			},
+			after: func() {},
+		},
+		{
 			name:   "register_push command is registered",
 			before: func() {},
 			check: func(gotCmd *cobra.Command) {
