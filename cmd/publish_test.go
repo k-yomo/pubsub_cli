@@ -30,9 +30,9 @@ func Test_publish(t *testing.T) {
 	}{
 		{
 			name: "message is expected to be published successfully",
-			args: args{rootCmd: rootCmd, args: []string{"publish", "test_topic", "hello"}},
+			args: args{rootCmd: rootCmd, args: []string{"publish", "publish_topic", "hello"}},
 			before: func() *pubsub.Subscription {
-				topic, err := pubsubClient.FindOrCreateTopic(context.Background(), "test_topic")
+				topic, err := pubsubClient.FindOrCreateTopic(context.Background(), "publish_topic")
 				if err != nil {
 					t.Fatal(err)
 				}
@@ -52,7 +52,7 @@ func Test_publish(t *testing.T) {
 		},
 		{
 			name:    "publish empty message causes error",
-			args:    args{rootCmd: rootCmd, args: []string{"publish", "test_topic", ""}},
+			args:    args{rootCmd: rootCmd, args: []string{"publish", "publish_topic", ""}},
 			before:  func() *pubsub.Subscription { return &pubsub.Subscription{} },
 			wantErr: true,
 		},
@@ -63,7 +63,7 @@ func Test_publish(t *testing.T) {
 				cmd.PersistentFlags().String(hostFlagName, "host", "")
 				cmd.PersistentFlags().String(credFileFlagName, "cred.json", "")
 				return cmd
-			}(), args: []string{"publish", "test_topic", "hello"}},
+			}(), args: []string{"publish", "publish_topic", "hello"}},
 			before:  func() *pubsub.Subscription { return &pubsub.Subscription{} },
 			wantErr: true,
 		},
@@ -74,7 +74,7 @@ func Test_publish(t *testing.T) {
 				cmd.PersistentFlags().String(projectFlagName, "project", "")
 				cmd.PersistentFlags().String(credFileFlagName, "cred.json", "")
 				return cmd
-			}(), args: []string{"publish", "test_topic", "hello"}},
+			}(), args: []string{"publish", "publish_topic", "hello"}},
 			before:  func() *pubsub.Subscription { return &pubsub.Subscription{} },
 			wantErr: true,
 		},
@@ -85,7 +85,7 @@ func Test_publish(t *testing.T) {
 				cmd.PersistentFlags().String(projectFlagName, "project", "")
 				cmd.PersistentFlags().String(hostFlagName, "host", "")
 				return cmd
-			}(), args: []string{"publish", "test_topic", "hello"}},
+			}(), args: []string{"publish", "publish_topic", "hello"}},
 			before:  func() *pubsub.Subscription { return &pubsub.Subscription{} },
 			wantErr: true,
 		},

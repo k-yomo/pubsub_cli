@@ -3,6 +3,7 @@ package cmd
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"github.com/k-yomo/pubsub_cli/pkg"
 	"github.com/spf13/cobra"
 	"testing"
@@ -23,22 +24,23 @@ func Test_createSubscription(t *testing.T) {
 	}
 	tests := []struct {
 		name               string
-		mockSubscriptionID string
 		args               args
 		check              func()
 		wantErr            bool
 	}{
 		{
 			name:               "subscription is created successfully",
-			mockSubscriptionID: "test",
-			args:               args{rootCmd: rootCmd, args: []string{"create_subscription", "test_topic", subscriptionID}},
+			args:               args{
+				rootCmd: rootCmd,
+				args: []string{"create_subscription", "create_subscription_topic", subscriptionID, fmt.Sprintf("--%s", createTopicIfNotExistFlagName)},
+			},
 			check: func() {
 				sub := pubsubClient.Subscription(subscriptionID)
 				subConfig, err := sub.Config(context.Background())
 				if err != nil {
 					t.Fatal(err)
 				}
-				topic := "test_topic"
+				topic := "create_subscription_topic"
 				// check if topic is collect
 				if subConfig.Topic.ID() != topic {
 					t.Errorf("createSubscription() got topic = %v, want %v", subConfig.Topic.String(), topic)
@@ -88,9 +90,6 @@ func Test_createSubscription(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			clear := pkg.SetMockUUID(t, tt.mockSubscriptionID)
-			defer clear()
-
 			out := &bytes.Buffer{}
 			cmd := newCreateSubscriptionCmd(out)
 			tt.args.rootCmd.SetArgs(tt.args.args)

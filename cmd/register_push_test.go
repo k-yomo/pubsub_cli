@@ -29,15 +29,15 @@ func Test_registerPush(t *testing.T) {
 	}{
 		{
 			name:               "push subscription is registered successfully",
-			mockSubscriptionID: "test",
-			args:               args{rootCmd: rootCmd, args: []string{"register_push", "test_topic", "http://localhost:9000"}},
+			mockSubscriptionID: "register_push_sub",
+			args:               args{rootCmd: rootCmd, args: []string{"register_push", "register_push_topic", "http://localhost:9000"}},
 			check: func() {
-				sub := pubsubClient.Subscription(pkg.UUID())
+				sub := pubsubClient.Subscription("register_push_sub")
 				subConfig, err := sub.Config(context.Background())
 				if err != nil {
 					t.Fatal(err)
 				}
-				topic := "test_topic"
+				topic := "register_push_topic"
 				// check if topic is collect
 				if subConfig.Topic.ID() != topic {
 					t.Errorf("registerPush() got topic = %v, want %v", subConfig.Topic.String(), topic)
