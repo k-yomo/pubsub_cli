@@ -101,7 +101,7 @@ func subscribe(ctx context.Context, out io.Writer, pubsubClient *pkg.PubSubClien
 				return errors.Wrapf(err, "create unique subscription to %s", topic.String())
 			}
 			subscribers <- &subscriber{topic: topic, sub: sub}
-			_, _ = colorstring.Fprintf(out, "[green][success] created subscription to %s\n", topic.String())
+			_, _ = colorstring.Fprintf(out, "[green][success] created subscription '%s' to %s\n",  sub.ID(), topic.String())
 			return nil
 		})
 	}
