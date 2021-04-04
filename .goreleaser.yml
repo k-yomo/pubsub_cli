@@ -27,7 +27,7 @@ changelog:
     exclude:
     - '^docs:'
     - '^test:'
-brew:
+brews:
   - tap:
       owner: k-yomo
       name: homebrew-pubsub_cli
