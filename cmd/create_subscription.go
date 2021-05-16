@@ -81,7 +81,7 @@ func createSubscription(ctx context.Context, out io.Writer, pubsubClient *pkg.Pu
 		return err
 	}
 	if ok {
-		_, _ = colorstring.Fprintf(out, "[cyan][skip] subscription '%s' already exists", subscriptionID)
+		_, _ = colorstring.Fprintf(out, "[cyan][skip] subscription '%s' already exists\n", subscriptionID)
 		return nil
 	}
 
