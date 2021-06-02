@@ -11,5 +11,5 @@ require (
 	github.com/spf13/cobra v1.1.3
 	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a
 	google.golang.org/api v0.40.0
-	google.golang.org/grpc v1.35.0
+	google.golang.org/grpc v1.38.0
 )
