@@ -8,6 +8,8 @@ import (
 )
 
 func Test_newRootCmd(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name   string
 		before func()
@@ -135,7 +137,10 @@ func Test_newRootCmd(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			tt.before()
 			tt.check(newRootCmd())
 			tt.after()

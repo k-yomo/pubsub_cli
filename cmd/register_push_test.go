@@ -14,7 +14,6 @@ func Test_registerPush(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	rootCmd := newTestRootCmd(t)
 
 	type args struct {
 		rootCmd *cobra.Command
@@ -30,7 +29,7 @@ func Test_registerPush(t *testing.T) {
 		{
 			name:               "push subscription is registered successfully",
 			mockSubscriptionID: "register_push_sub",
-			args:               args{rootCmd: rootCmd, args: []string{"register_push", "register_push_topic", "http://localhost:9000"}},
+			args:               args{rootCmd: newTestRootCmd(t), args: []string{"register_push", "register_push_topic", "http://localhost:9000"}},
 			check: func() {
 				sub := pubsubClient.Subscription("register_push_sub")
 				subConfig, err := sub.Config(context.Background())
@@ -55,13 +54,13 @@ func Test_registerPush(t *testing.T) {
 		},
 		{
 			name:    "push subscription with invalid topic name causes error",
-			args:    args{rootCmd: rootCmd, args: []string{"register_push", "1", "http://localhost:9000"}},
+			args:    args{rootCmd: newTestRootCmd(t), args: []string{"register_push", "1", "http://localhost:9000"}},
 			check:   func() {},
 			wantErr: true,
 		},
 		{
 			name:    "push subscription with invalid endpoint causes error",
-			args:    args{rootCmd: rootCmd, args: []string{"register_push", "test_topic", "invalid"}},
+			args:    args{rootCmd: newTestRootCmd(t), args: []string{"register_push", "test_topic", "invalid"}},
 			check:   func() {},
 			wantErr: true,
 		},
@@ -100,6 +99,7 @@ func Test_registerPush(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			clear := pkg.SetMockUUID(t, tt.mockSubscriptionID)
 			defer clear()
