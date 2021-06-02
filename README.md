@@ -58,7 +58,7 @@ For more detail and about the other ways to authenticate, please refer to [offic
 ### Publish
 ```
 $ gcloud auth application-default login
-$ pubsub_cli publish test_topic '{"key":"value"}' -p your_gcp_project
+$ pubsub_cli publish test_topic '{"key":"value"}' -a key=value -p your_gcp_project
 ```
 
 - publish a message to the topic (create if not exist)
