@@ -20,7 +20,7 @@ $ go get github.com/k-yomo/pubsub_cli
 ```
 
 ### Pub/Sub Emulator
-- Make sure Pub/Sub Emulator is running before executing commands.
+- If you want to use pubsub_cli for Pub/Sub Emulator, make sure the emulator is running before executing commands.
 ```
 $ gcloud beta emulators pubsub start --host-port=0.0.0.0:8085
 ```
@@ -32,11 +32,12 @@ Usage:
   pubsub_cli [command]
 
 Available Commands:
-  help          Help about any command
-  publish       publish Pub/Sub message
-  register_push register Pub/Sub push endpoint
-  subscribe     subscribe Pub/Sub topics
-  connect       connect remote topics to local topics
+  help                Help about any command
+  publish             publish Pub/Sub message
+  create_subscription create Pub/Sub subscription
+  register_push       register Pub/Sub push endpoint
+  connect             connect remote topics to local topics
+  subscribe           subscribe Pub/Sub topics
 
 Flags:
   -c, --cred-file string   gcp credential file path (You can also set 'GOOGLE_APPLICATION_CREDENTIALS' to env variable)
@@ -88,6 +89,8 @@ $ pubsub_cli register_push test_topic http://localhost:1323/subscribe -h localho
 ```
 
 ### Connects Remote Topic with Local Topic
+`connect` command is useful to register push subscriptions with local endpoint for real topics on GCP.
+
 - connect topics
 ```
 $ pubsub_cli connect your_gcp_project topic1 topic2 -host localhost:8085 -p emulator
