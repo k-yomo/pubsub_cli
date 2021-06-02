@@ -13,7 +13,7 @@ import (
 
 // newRegisterPushCmd returns the command to register an endpoint for subscribing
 func newRegisterPushCmd(out io.Writer) *cobra.Command {
-	return &cobra.Command{
+	command := &cobra.Command{
 		Use:     "register_push TOPIC_ID ENDPOINT",
 		Short:   "register Pub/Sub push endpoint",
 		Long:    "register new endpoint for  push http request from Pub/Sub",
@@ -34,6 +34,8 @@ func newRegisterPushCmd(out io.Writer) *cobra.Command {
 			return registerPush(cmd.Context(), out, pubsubClient, topicID, endpoint)
 		},
 	}
+	command.SetOut(out)
+	return command
 }
 
 // registerPush registers new push endpoint

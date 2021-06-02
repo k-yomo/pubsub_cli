@@ -142,7 +142,8 @@ func Test_newRootCmd(t *testing.T) {
 			t.Parallel()
 
 			tt.before()
-			tt.check(newRootCmd())
+			out := &bytes.Buffer{}
+			tt.check(newRootCmd(out))
 			tt.after()
 		})
 	}

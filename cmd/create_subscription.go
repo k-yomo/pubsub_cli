@@ -47,6 +47,7 @@ func newCreateSubscriptionCmd(out io.Writer) *cobra.Command {
 			return createSubscription(cmd.Context(), out, pubsubClient, topicID, subscriptionID, createTopicIfNotExist)
 		},
 	}
+	command.SetOut(out)
 	command.PersistentFlags().Bool(createTopicIfNotExistFlagName, false, "create topics if not exist")
 	// TODO: add flags below
 	//   optional flags may be  --ack-deadline | --dead-letter-topic |

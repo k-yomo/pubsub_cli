@@ -66,6 +66,7 @@ func newPublishCmd(out io.Writer) *cobra.Command {
 			return publish(cmd.Context(), out, pubsubClient, topicID, m, createTopicIfNotExist)
 		},
 	}
+	command.SetOut(out)
 	command.PersistentFlags().Bool(createTopicIfNotExistFlagName, false, "create topics if not exist")
 	command.PersistentFlags().StringArrayP(attributeFlagName, "a", []string{}, "pubsub attribute")
 	return command

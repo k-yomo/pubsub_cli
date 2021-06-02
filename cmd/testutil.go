@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"bytes"
 	"github.com/spf13/cobra"
 	"testing"
 )
@@ -8,7 +9,8 @@ import (
 func newTestRootCmd(t *testing.T) *cobra.Command {
 	t.Helper()
 
-	rootCmd := newRootCmd()
+	out := &bytes.Buffer{}
+	rootCmd := newRootCmd(out)
 	rootCmd.PersistentFlags().Set(projectFlagName, "test")
 	rootCmd.PersistentFlags().Set(hostFlagName, "localhost:8085")
 	rootCmd.PersistentFlags().Set(createTopicIfNotExistFlagName, "")
