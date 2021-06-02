@@ -47,6 +47,7 @@ func newSubscribeCmd(out io.Writer) *cobra.Command {
 			return subscribe(cmd.Context(), out, pubsubClient, topicIDs, createTopicIfNotExist)
 		},
 	}
+	command.SetOut(out)
 	command.PersistentFlags().Bool(createTopicIfNotExistFlagName, false, "create topics if not exist")
 	return command
 }

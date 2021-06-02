@@ -10,11 +10,12 @@ import (
 )
 
 func Test_createSubscription(t *testing.T) {
+	t.Parallel()
+
 	pubsubClient, err := pkg.NewTestPubSubClient(t)
 	if err != nil {
 		t.Fatal(err)
 	}
-	rootCmd := newTestRootCmd(t)
 
 	subscriptionID := pkg.UUID()
 
@@ -31,7 +32,7 @@ func Test_createSubscription(t *testing.T) {
 		{
 			name:               "subscription is created successfully",
 			args:               args{
-				rootCmd: rootCmd,
+				rootCmd: newTestRootCmd(t),
 				args: []string{"create_subscription", "create_subscription_topic", subscriptionID, fmt.Sprintf("--%s", createTopicIfNotExistFlagName)},
 			},
 			check: func() {
@@ -50,7 +51,7 @@ func Test_createSubscription(t *testing.T) {
 		},
 		{
 			name:    "push subscription with invalid topic name causes error",
-			args:    args{rootCmd: rootCmd, args: []string{"create_subscription", "a", "test_topic_sub"}},
+			args:    args{rootCmd: newTestRootCmd(t), args: []string{"create_subscription", "a", "test_topic_sub"}},
 			check:   func() {},
 			wantErr: true,
 		},

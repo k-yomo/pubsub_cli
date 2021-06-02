@@ -7,7 +7,7 @@ import (
 )
 
 func Test_subscribe(t *testing.T) {
-	rootCmd := newTestRootCmd(t)
+	t.Parallel()
 
 	type args struct {
 		rootCmd *cobra.Command
@@ -22,7 +22,7 @@ func Test_subscribe(t *testing.T) {
 	}{
 		{
 			name:    "subscribe topic with invalid name causes error",
-			args:    args{rootCmd: rootCmd, args: []string{"subscribe", "1"}},
+			args:    args{rootCmd: newTestRootCmd(t), args: []string{"subscribe", "1"}},
 			wantErr: true,
 		},
 		{
@@ -58,7 +58,10 @@ func Test_subscribe(t *testing.T) {
 		// TODO: test regular cases
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			out := &bytes.Buffer{}
 			cmd := newSubscribeCmd(out)
 			tt.args.rootCmd.SetArgs(tt.args.args)

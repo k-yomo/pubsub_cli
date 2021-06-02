@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"io"
 	"os"
 
 	"github.com/mitchellh/colorstring"
@@ -17,20 +18,21 @@ var version string
 
 // Exec executes command
 func Exec() {
-	rootCmd := newRootCmd()
+	rootCmd := newRootCmd(os.Stdin)
 	if err := rootCmd.Execute(); err != nil {
 		_, _ = colorstring.Printf("[red][error] %v\n", err)
 		os.Exit(1)
 	}
 }
 
-func newRootCmd() *cobra.Command {
+func newRootCmd(out io.Writer) *cobra.Command {
 	var rootCmd = &cobra.Command{
 		Use:     "pubsub_cli",
 		Short:   "pubsub_cli is a handy cloud Pub/Sub CLI",
 		Long:    "Very simple cloud Pub/Sub CLI used as publisher / subscriber",
 		Version: version,
 	}
+	rootCmd.SetOut(out)
 
 	projectID := os.Getenv("GCP_PROJECT_ID")
 	emulatorHost := os.Getenv("PUBSUB_EMULATOR_HOST")
@@ -41,11 +43,11 @@ func newRootCmd() *cobra.Command {
 	rootCmd.PersistentFlags().StringVarP(&gcpCredentialFilePath, credFileFlagName, "c", gcpCredentialFilePath, "gcp credential file path (You can also set 'GOOGLE_APPLICATION_CREDENTIALS' to env variable)")
 
 	rootCmd.AddCommand(
-		newPublishCmd(os.Stdin),
-		newSubscribeCmd(os.Stdin),
-		newCreateSubscriptionCmd(os.Stdin),
-		newRegisterPushCmd(os.Stdin),
-		newConnectCmd(os.Stdin),
+		newPublishCmd(out),
+		newSubscribeCmd(out),
+		newCreateSubscriptionCmd(out),
+		newRegisterPushCmd(out),
+		newConnectCmd(out),
 	)
 	return rootCmd
 }
