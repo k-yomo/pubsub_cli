@@ -34,10 +34,10 @@ Usage:
 Available Commands:
   help                Help about any command
   publish             publish Pub/Sub message
+  subscribe           subscribe Pub/Sub topics
   create_subscription create Pub/Sub subscription
   register_push       register Pub/Sub push endpoint
   connect             connect remote topics to local topics
-  subscribe           subscribe Pub/Sub topics
 
 Flags:
   -c, --cred-file string   gcp credential file path (You can also set 'GOOGLE_APPLICATION_CREDENTIALS' to env variable)
