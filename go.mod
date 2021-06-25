@@ -3,7 +3,7 @@ module github.com/k-yomo/pubsub_cli
 go 1.16
 
 require (
-	cloud.google.com/go/pubsub v1.11.0
+	cloud.google.com/go/pubsub v1.12.0
 	github.com/google/go-cmp v0.5.6
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db
 	github.com/pkg/errors v0.9.1
