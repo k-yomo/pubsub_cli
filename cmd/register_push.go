@@ -8,6 +8,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"io"
+	"strconv"
 	"time"
 )
 
@@ -23,6 +24,8 @@ func newRegisterPushCmd(out io.Writer) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			topicID := args[0]
 			endpoint := args[1]
+			ackDeadline, err := cmd.Flags().GetString("timeout")
+			ackDeadlineNum, err := strconv.ParseInt(ackDeadline, 10, 64)
 			projectID, err := cmd.Flags().GetString("project")
 			emulatorHost, err := cmd.Flags().GetString("host")
 			gcpCredentialFilePath, err := cmd.Flags().GetString("cred-file")
@@ -31,7 +34,7 @@ func newRegisterPushCmd(out io.Writer) *cobra.Command {
 			if err != nil {
 				return errors.Wrap(err, "initialize pubsub client")
 			}
-			return registerPush(cmd.Context(), out, pubsubClient, topicID, endpoint)
+			return registerPush(cmd.Context(), out, pubsubClient, topicID, endpoint, ackDeadlineNum)
 		},
 	}
 	command.SetOut(out)
@@ -39,7 +42,7 @@ func newRegisterPushCmd(out io.Writer) *cobra.Command {
 }
 
 // registerPush registers new push endpoint
-func registerPush(ctx context.Context, out io.Writer, pubsubClient *pkg.PubSubClient, topicID, endpoint string) error {
+func registerPush(ctx context.Context, out io.Writer, pubsubClient *pkg.PubSubClient, topicID, endpoint string, ackDeadline int64) error {
 	topic, err := pubsubClient.FindOrCreateTopic(ctx, topicID)
 	if err != nil {
 		return errors.Wrapf(err, "[error]find or create topic %s", topicID)
@@ -48,6 +51,11 @@ func registerPush(ctx context.Context, out io.Writer, pubsubClient *pkg.PubSubCl
 	_, _ = colorstring.Fprintf(out, "[start] registering push endpoint for %s...\n", topic.String())
 	subscriptionConfig := pubsub.SubscriptionConfig{
 		Topic:            topic,
+		AckDeadline: time.Duration(ackDeadline) * time.Second,
+		//RetryPolicy: &pubsub.RetryPolicy{
+		//	MinimumBackoff: time.Duration(ackDeadline) * time.Second,
+		//	MaximumBackoff: time.Duration(ackDeadline) * time.Second,
+		//},
 		ExpirationPolicy: 24 * time.Hour,
 		PushConfig: pubsub.PushConfig{
 			Endpoint:             endpoint,

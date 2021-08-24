@@ -2,17 +2,17 @@ package cmd
 
 import (
 	"fmt"
-	"io"
-	"os"
-
 	"github.com/mitchellh/colorstring"
 	"github.com/spf13/cobra"
+	"io"
+	"os"
 )
 
 const projectFlagName = "project"
 const hostFlagName = "host"
 const credFileFlagName = "cred-file"
 const createTopicIfNotExistFlagName = "create-if-not-exist"
+const ackDeadline = "timeout"
 
 var version string
 
@@ -37,10 +37,12 @@ func newRootCmd(out io.Writer) *cobra.Command {
 	projectID := os.Getenv("GCP_PROJECT_ID")
 	emulatorHost := os.Getenv("PUBSUB_EMULATOR_HOST")
 	gcpCredentialFilePath := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
+	timeout := os.Getenv("PUBSUB_RETRY_TIMEOUT")
 	rootCmd.PersistentFlags().Bool("help", false, fmt.Sprintf("help for %s", rootCmd.Name()))
 	rootCmd.PersistentFlags().StringVarP(&projectID, projectFlagName, "p", projectID, "gcp project id (You can also set 'GCP_PROJECT_ID' to env variable)")
 	rootCmd.PersistentFlags().StringVarP(&emulatorHost, hostFlagName, "h", emulatorHost, "emulator host (You can also set 'PUBSUB_EMULATOR_HOST' to env variable)")
 	rootCmd.PersistentFlags().StringVarP(&gcpCredentialFilePath, credFileFlagName, "c", gcpCredentialFilePath, "gcp credential file path (You can also set 'GOOGLE_APPLICATION_CREDENTIALS' to env variable)")
+	rootCmd.PersistentFlags().StringVarP(&timeout, ackDeadline, "t", timeout, "pubsub Retry timeout")
 
 	rootCmd.AddCommand(
 		newPublishCmd(out),
