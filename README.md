@@ -16,7 +16,7 @@ $ brew install pubsub_cli
 
 #### Go 
 ```
-$ go get github.com/k-yomo/pubsub_cli
+$ go install github.com/k-yomo/pubsub_cli
 ```
 
 ### Pub/Sub Emulator
@@ -48,7 +48,7 @@ Flags:
 ※ When both of --host and --cred-file are set, emulator host will be prioritised for safety purpose.
 
 ## Auth
-You need to be authenticated to execute pubsub_cli commands for GCP Project. Recommended ways are described below.
+You need to be authenticated to execute pubsub_cli commands for real GCP Project. Recommended ways are described below.
 
 1. use your own credential by execution `gcloud auth application-default login`
 2. use service account's credentials json by setting option `--cred-file` or env variable `GOOGLE_APPLICATION_CREDENTIALS`
