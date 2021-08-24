@@ -2,11 +2,10 @@ package cmd
 
 import (
 	"fmt"
-	"io"
-	"os"
-
 	"github.com/mitchellh/colorstring"
 	"github.com/spf13/cobra"
+	"io"
+	"os"
 )
 
 const projectFlagName = "project"
@@ -41,7 +40,6 @@ func newRootCmd(out io.Writer) *cobra.Command {
 	rootCmd.PersistentFlags().StringVarP(&projectID, projectFlagName, "p", projectID, "gcp project id (You can also set 'GCP_PROJECT_ID' to env variable)")
 	rootCmd.PersistentFlags().StringVarP(&emulatorHost, hostFlagName, "h", emulatorHost, "emulator host (You can also set 'PUBSUB_EMULATOR_HOST' to env variable)")
 	rootCmd.PersistentFlags().StringVarP(&gcpCredentialFilePath, credFileFlagName, "c", gcpCredentialFilePath, "gcp credential file path (You can also set 'GOOGLE_APPLICATION_CREDENTIALS' to env variable)")
-
 	rootCmd.AddCommand(
 		newPublishCmd(out),
 		newSubscribeCmd(out),
