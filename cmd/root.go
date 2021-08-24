@@ -12,6 +12,7 @@ const projectFlagName = "project"
 const hostFlagName = "host"
 const credFileFlagName = "cred-file"
 const createTopicIfNotExistFlagName = "create-if-not-exist"
+const ackDeadlineFlagName = "ack-deadline"
 
 var version string
 

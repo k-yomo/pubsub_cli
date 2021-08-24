@@ -39,7 +39,7 @@ func Test_publish(t *testing.T) {
 				if err != nil {
 					t.Fatal(err)
 				}
-				sub, err := pubsubClient.CreateUniqueSubscription(context.Background(), topic)
+				sub, err := pubsubClient.CreateUniqueSubscription(context.Background(), topic, 0)
 				if err != nil {
 					t.Fatal(err)
 				}
@@ -55,7 +55,7 @@ func Test_publish(t *testing.T) {
 				if err != nil {
 					t.Fatal(err)
 				}
-				sub, err := pubsubClient.CreateUniqueSubscription(context.Background(), topic)
+				sub, err := pubsubClient.CreateUniqueSubscription(context.Background(), topic, 0)
 				if err != nil {
 					t.Fatal(err)
 				}

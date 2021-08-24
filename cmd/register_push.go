@@ -13,11 +13,8 @@ import (
 	"time"
 )
 
-const ackDeadlineFlagName = "ack-deadline"
-
 // newRegisterPushCmd returns the command to register an endpoint for subscribing
 func newRegisterPushCmd(out io.Writer) *cobra.Command {
-	ackDeadlineDefault := os.Getenv("PUBSUB_ACK_DEADLINE")
 	command := &cobra.Command{
 		Use:     "register_push TOPIC_ID ENDPOINT",
 		Short:   "register Pub/Sub push endpoint",
@@ -28,12 +25,11 @@ func newRegisterPushCmd(out io.Writer) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			topicID := args[0]
 			endpoint := args[1]
-			ackDeadline, err := cmd.Flags().GetString("ack-deadline")
-			ackDeadlineNum, err := strconv.ParseInt(ackDeadline, 10, 64)
-			ackDeadlineSecond := time.Duration(ackDeadlineNum) * time.Second
-			projectID, err := cmd.Flags().GetString("project")
-			emulatorHost, err := cmd.Flags().GetString("host")
-			gcpCredentialFilePath, err := cmd.Flags().GetString("cred-file")
+			ackDeadline, _ := cmd.Flags().GetInt("ack-deadline")
+			ackDeadlineSecond := time.Duration(ackDeadline) * time.Second
+			projectID, _ := cmd.Flags().GetString("project")
+			emulatorHost, _ := cmd.Flags().GetString("host")
+			gcpCredentialFilePath, _ := cmd.Flags().GetString("cred-file")
 
 			pubsubClient, err := pkg.NewPubSubClient(cmd.Context(), projectID, emulatorHost, gcpCredentialFilePath)
 			if err != nil {
@@ -43,7 +39,8 @@ func newRegisterPushCmd(out io.Writer) *cobra.Command {
 		},
 	}
 	command.SetOut(out)
-	command.PersistentFlags().StringVarP(&ackDeadlineDefault, ackDeadlineFlagName, "a", ackDeadlineDefault, "pubsub ack deadline(unit seconds)")
+	ackDeadlineDefault, _ := strconv.Atoi(os.Getenv("PUBSUB_ACK_DEADLINE"))
+	command.PersistentFlags().IntVarP(&ackDeadlineDefault, ackDeadlineFlagName, "a", ackDeadlineDefault, "pubsub ack deadline(unit seconds)")
 	return command
 }
 

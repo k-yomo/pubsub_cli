@@ -107,7 +107,7 @@ func connect(ctx context.Context, out io.Writer, remotePubsubClient, localPubsub
 		localTopic := localTopics[i]
 		eg.Go(func() error {
 			fmt.Println(fmt.Sprintf("[start]creating unique subscription to %s...", remoteTopic.String()))
-			sub, err := remotePubsubClient.CreateUniqueSubscription(ctx, remoteTopic)
+			sub, err := remotePubsubClient.CreateUniqueSubscription(ctx, remoteTopic, 0)
 			if err != nil {
 				return errors.Wrapf(err, "create unique subscription to %s", remoteTopic.String())
 			}
