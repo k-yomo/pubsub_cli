@@ -10,6 +10,9 @@ import (
 	"github.com/spf13/cobra"
 	"golang.org/x/sync/errgroup"
 	"io"
+	"os"
+	"strconv"
+	"time"
 )
 
 // newSubscribeCmd returns the command to subscribe messages
@@ -23,6 +26,8 @@ func newSubscribeCmd(out io.Writer) *cobra.Command {
 		Args:    cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			topicIDs := args
+			ackDeadline, _ := cmd.Flags().GetInt(ackDeadlineFlagName)
+			ackDeadlineSecond := time.Duration(ackDeadline) * time.Second
 			projectID, err := cmd.Flags().GetString(projectFlagName)
 			if err != nil {
 				return err
@@ -44,11 +49,13 @@ func newSubscribeCmd(out io.Writer) *cobra.Command {
 			if err != nil {
 				return errors.Wrap(err, "initialize pubsub client")
 			}
-			return subscribe(cmd.Context(), out, pubsubClient, topicIDs, createTopicIfNotExist)
+			return subscribe(cmd.Context(), out, pubsubClient, topicIDs, createTopicIfNotExist, ackDeadlineSecond)
 		},
 	}
 	command.SetOut(out)
 	command.PersistentFlags().Bool(createTopicIfNotExistFlagName, false, "create topics if not exist")
+	ackDeadlineDefault, _ := strconv.Atoi(os.Getenv("PUBSUB_ACK_DEADLINE"))
+	command.PersistentFlags().IntVarP(&ackDeadlineDefault, ackDeadlineFlagName, "a", ackDeadlineDefault, "pubsub ack deadline(unit seconds)")
 	return command
 }
 
@@ -58,7 +65,7 @@ type subscriber struct {
 }
 
 // subscribe subscribes Pub/Sub messages
-func subscribe(ctx context.Context, out io.Writer, pubsubClient *pkg.PubSubClient, topicIDs []string, createTopicIfNotExist bool) error {
+func subscribe(ctx context.Context, out io.Writer, pubsubClient *pkg.PubSubClient, topicIDs []string, createTopicIfNotExist bool, ackDeadline time.Duration) error {
 	var topics []*pubsub.Topic
 	var err error
 	// if topic name is "all", subscribe all topics in the project
@@ -97,7 +104,7 @@ func subscribe(ctx context.Context, out io.Writer, pubsubClient *pkg.PubSubClien
 		topic := topic
 		eg.Go(func() error {
 			fmt.Fprintf(out, "[start] creating unique subscription to %s...\n", topic.String())
-			sub, err := pubsubClient.CreateUniqueSubscription(ctx, topic)
+			sub, err := pubsubClient.CreateUniqueSubscription(ctx, topic, ackDeadline)
 			if err != nil {
 				return errors.Wrapf(err, "create unique subscription to %s", topic.String())
 			}

@@ -149,9 +149,10 @@ func (pc *PubSubClient) FindOrCreateTopics(ctx context.Context, topicIDs []strin
 }
 
 // CreateUniqueSubscription creates an unique subscription to given topic
-func (pc *PubSubClient) CreateUniqueSubscription(ctx context.Context, topic *pubsub.Topic) (*pubsub.Subscription, error) {
+func (pc *PubSubClient) CreateUniqueSubscription(ctx context.Context, topic *pubsub.Topic, ackDeadline time.Duration) (*pubsub.Subscription, error) {
 	subscriptionConfig := pubsub.SubscriptionConfig{
 		Topic:            topic,
+		AckDeadline:      ackDeadline,
 		ExpirationPolicy: 24 * time.Hour,
 		Labels:           map[string]string{"created_by": "pubsub_cli"},
 	}
