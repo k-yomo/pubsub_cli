@@ -26,7 +26,7 @@ func newSubscribeCmd(out io.Writer) *cobra.Command {
 		Args:    cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			topicIDs := args
-			ackDeadline, _ := cmd.Flags().GetInt("ack-deadline")
+			ackDeadline, _ := cmd.Flags().GetInt(ackDeadlineFlagName)
 			ackDeadlineSecond := time.Duration(ackDeadline) * time.Second
 			projectID, err := cmd.Flags().GetString(projectFlagName)
 			if err != nil {

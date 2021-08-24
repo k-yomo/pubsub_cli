@@ -25,11 +25,20 @@ func newRegisterPushCmd(out io.Writer) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			topicID := args[0]
 			endpoint := args[1]
-			ackDeadline, _ := cmd.Flags().GetInt("ack-deadline")
+			ackDeadline, _ := cmd.Flags().GetInt(ackDeadlineFlagName)
 			ackDeadlineSecond := time.Duration(ackDeadline) * time.Second
-			projectID, _ := cmd.Flags().GetString("project")
-			emulatorHost, _ := cmd.Flags().GetString("host")
-			gcpCredentialFilePath, _ := cmd.Flags().GetString("cred-file")
+			projectID, err := cmd.Flags().GetString(projectFlagName)
+			if err != nil {
+				return err
+			}
+			emulatorHost, err := cmd.Flags().GetString(hostFlagName)
+			if err != nil {
+				return err
+			}
+			gcpCredentialFilePath, err := cmd.Flags().GetString(credFileFlagName)
+			if err != nil {
+				return err
+			}
 
 			pubsubClient, err := pkg.NewPubSubClient(cmd.Context(), projectID, emulatorHost, gcpCredentialFilePath)
 			if err != nil {
