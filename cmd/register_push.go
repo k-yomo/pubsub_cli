@@ -24,7 +24,7 @@ func newRegisterPushCmd(out io.Writer) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			topicID := args[0]
 			endpoint := args[1]
-			ackDeadline, err := cmd.Flags().GetString("timeout")
+			ackDeadline, err := cmd.Flags().GetString("ack-deadline")
 			ackDeadlineNum, err := strconv.ParseInt(ackDeadline, 10, 64)
 			projectID, err := cmd.Flags().GetString("project")
 			emulatorHost, err := cmd.Flags().GetString("host")
@@ -52,10 +52,6 @@ func registerPush(ctx context.Context, out io.Writer, pubsubClient *pkg.PubSubCl
 	subscriptionConfig := pubsub.SubscriptionConfig{
 		Topic:            topic,
 		AckDeadline: time.Duration(ackDeadline) * time.Second,
-		//RetryPolicy: &pubsub.RetryPolicy{
-		//	MinimumBackoff: time.Duration(ackDeadline) * time.Second,
-		//	MaximumBackoff: time.Duration(ackDeadline) * time.Second,
-		//},
 		ExpirationPolicy: 24 * time.Hour,
 		PushConfig: pubsub.PushConfig{
 			Endpoint:             endpoint,
