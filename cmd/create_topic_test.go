@@ -3,6 +3,7 @@ package cmd
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"github.com/k-yomo/pubsub_cli/pkg"
 	"github.com/spf13/cobra"
 	"testing"
@@ -16,7 +17,8 @@ func Test_createTopic(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	topicID := pkg.UUID()
+	topicID1 := fmt.Sprintf("%s_1", pkg.UUID())
+	topicID2 := fmt.Sprintf("%s_2", pkg.UUID())
 
 	type args struct {
 		rootCmd *cobra.Command
@@ -32,10 +34,13 @@ func Test_createTopic(t *testing.T) {
 			name:               "topic is created successfully",
 			args:               args{
 				rootCmd: newTestRootCmd(t),
-				args: []string{"create_topic", topicID},
+				args: []string{"create_topic", topicID1, topicID2},
 			},
 			check: func() {
-				if _, err := pubsubClient.FindTopic(context.Background(), topicID); err != nil {
+				if _, err := pubsubClient.FindTopic(context.Background(), topicID1); err != nil {
+					t.Fatal(err)
+				}
+				if _, err := pubsubClient.FindTopic(context.Background(), topicID2); err != nil {
 					t.Fatal(err)
 				}
 			},
@@ -44,7 +49,7 @@ func Test_createTopic(t *testing.T) {
 			name:               "skip existing topic",
 			args:               args{
 				rootCmd: newTestRootCmd(t),
-				args: []string{"create_topic", topicID, topicID},
+				args: []string{"create_topic", topicID1, topicID1},
 			},
 			check: func() {},
 		},
