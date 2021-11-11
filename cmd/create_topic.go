@@ -13,7 +13,7 @@ import (
 func newCreateTopicCmd(out io.Writer) *cobra.Command {
 	command := &cobra.Command{
 		Use:     "create_topic TOPIC_ID",
-		Short:   "create topic",
+		Short:   "create Pub/Sub topic",
 		Long:    "create Pub/Sub topic",
 		Example: "pubsub_cli create_topic topic_1 topic_2 --host=localhost:8085 --project=test_project",
 		Aliases: []string{"ct"},

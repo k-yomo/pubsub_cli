@@ -35,6 +35,7 @@ Available Commands:
   help                Help about any command
   publish             publish Pub/Sub message
   subscribe           subscribe Pub/Sub topics
+  create_topic        create Pub/Sub topic
   create_subscription create Pub/Sub subscription
   register_push       register Pub/Sub push endpoint
   connect             connect remote topics to local topics
@@ -76,6 +77,11 @@ $ pubsub_cli subscribe test_topic another_topic -c credentials.json -p your_gcp_
 - subscribe all
 ```
 $ pubsub_cli subscribe all -c credentials.json -p your_gcp_project
+```
+
+### Create topic
+```
+$ pubsub_cli create_topic topic_1 topic_2 --host=localhost:8085 -p emulator
 ```
 
 ### Create Subscription
