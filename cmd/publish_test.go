@@ -35,7 +35,7 @@ func Test_publish(t *testing.T) {
 			name: "message is expected to be published successfully",
 			args: args{rootCmd: newTestRootCmd(t), args: []string{"publish", "publish_topic1", "hello"}},
 			before: func() *pubsub.Subscription {
-				topic, err := pubsubClient.FindOrCreateTopic(context.Background(), "publish_topic1")
+				topic, _, err := pubsubClient.FindOrCreateTopic(context.Background(), "publish_topic1")
 				if err != nil {
 					t.Fatal(err)
 				}
@@ -51,7 +51,7 @@ func Test_publish(t *testing.T) {
 			name: "message with attributes is expected to be published successfully",
 			args: args{rootCmd: newTestRootCmd(t), args: []string{"publish", "publish_topic2", "hello", "--attribute=k1=v1", "-a k2=v2"}},
 			before: func() *pubsub.Subscription {
-				topic, err := pubsubClient.FindOrCreateTopic(context.Background(), "publish_topic2")
+				topic, _, err := pubsubClient.FindOrCreateTopic(context.Background(), "publish_topic2")
 				if err != nil {
 					t.Fatal(err)
 				}

@@ -11,13 +11,13 @@ import (
 	"io"
 )
 
-// newCreateSubscriptionCmd returns the command to createSubscription messages
+// newCreateSubscriptionCmd returns the command to create subscriptions
 func newCreateSubscriptionCmd(out io.Writer) *cobra.Command {
 	command := &cobra.Command{
 		Use:     "create_subscription TOPIC_ID SUBSCRIPTION_ID",
 		Short:   "create Pub/Sub subscription",
 		Long:    "create subscription",
-		Example: "pubsub_cli createSubscription test_topic test_topic_sub --create-if-not-exist --host=localhost:8085 --project=test_project",
+		Example: "pubsub_cli create_subscription test_topic test_topic_sub --create-if-not-exist --host=localhost:8085 --project=test_project",
 		Aliases: []string{"cs"},
 		Args:    cobra.MinimumNArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -66,7 +66,7 @@ func createSubscription(ctx context.Context, out io.Writer, pubsubClient *pkg.Pu
 	var topic *pubsub.Topic
 	var err error
 	if createTopicIfNotExist {
-		topic, err = pubsubClient.FindOrCreateTopic(ctx, topicID)
+		topic, _, err = pubsubClient.FindOrCreateTopic(ctx, topicID)
 	} else {
 		topic, err = pubsubClient.FindTopic(ctx, topicID)
 	}

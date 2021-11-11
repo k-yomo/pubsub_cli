@@ -55,7 +55,7 @@ func newRegisterPushCmd(out io.Writer) *cobra.Command {
 
 // registerPush registers new push endpoint
 func registerPush(ctx context.Context, out io.Writer, pubsubClient *pkg.PubSubClient, topicID, endpoint string, ackDeadline time.Duration) error {
-	topic, err := pubsubClient.FindOrCreateTopic(ctx, topicID)
+	topic, _, err := pubsubClient.FindOrCreateTopic(ctx, topicID)
 	if err != nil {
 		return errors.Wrapf(err, "[error]find or create topic %s", topicID)
 	}

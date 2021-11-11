@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/api/iterator"
-	"google.golang.org/grpc"
+	"os"
 	"time"
 
 	"cloud.google.com/go/pubsub"
@@ -27,11 +27,9 @@ func NewPubSubClient(ctx context.Context, projectID, pubsubEmulatorHost, gcpCred
 
 	var opts []option.ClientOption
 	if pubsubEmulatorHost != "" {
-		conn, err := grpc.DialContext(ctx, pubsubEmulatorHost, grpc.WithInsecure())
-		if err != nil {
-			return nil, errors.Wrap(err, "grpc.Dial")
+		if err := os.Setenv("PUBSUB_EMULATOR_HOST", pubsubEmulatorHost); err != nil {
+			return nil, errors.Wrap(err, "os.Setenv")
 		}
-		opts = append(opts, option.WithGRPCConn(conn))
 	} else {
 		opts = append(opts, option.WithCredentialsFile(gcpCredFilePath))
 	}
@@ -104,20 +102,20 @@ func (pc *PubSubClient) FindTopics(ctx context.Context, topicIDs []string) ([]*p
 }
 
 // FindOrCreateTopic finds the topic or create if not exists.
-func (pc *PubSubClient) FindOrCreateTopic(ctx context.Context, topicID string) (*pubsub.Topic, error) {
+func (pc *PubSubClient) FindOrCreateTopic(ctx context.Context, topicID string) (*pubsub.Topic, bool, error) {
 	topic, err := pc.FindTopic(ctx, topicID)
 	if err != nil {
-		return nil, err
+		return nil, false, err
 	}
 	if topic != nil {
-		return topic, nil
+		return topic, false, nil
 	}
 
 	topic, err = pc.CreateTopic(ctx, topicID)
 	if err != nil {
-		return nil, errors.Wrapf(err, "create topic %s", topicID)
+		return nil,false, errors.Wrapf(err, "create topic %s", topicID)
 	}
-	return topic, nil
+	return topic, true, nil
 }
 
 // FindOrCreateTopics finds the given topics or creates if not exists.
@@ -129,7 +127,7 @@ func (pc *PubSubClient) FindOrCreateTopics(ctx context.Context, topicIDs []strin
 	for _, topicID := range topicIDs {
 		topicID := topicID
 		eg.Go(func() error {
-			topic, err := pc.FindOrCreateTopic(ctx, topicID)
+			topic, _, err := pc.FindOrCreateTopic(ctx, topicID)
 			if err != nil {
 				return errors.Wrapf(err, "find or create topic %s", topicID)
 			}
