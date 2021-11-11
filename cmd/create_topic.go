@@ -54,7 +54,6 @@ func createTopic(ctx context.Context, out io.Writer, pubsubClient *pkg.PubSubCli
 		} else {
 			_, _ = colorstring.Fprintf(out, "[cyan][skip] topic '%s' already exists \n", topic.String())
 		}
-		return nil
 	}
 	return nil
 }
