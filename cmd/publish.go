@@ -77,7 +77,7 @@ func publish(ctx context.Context, out io.Writer, pubsubClient *pkg.PubSubClient,
 	var topic *pubsub.Topic
 	var err error
 	if createTopicIfNotExist {
-		topic, err = pubsubClient.FindOrCreateTopic(ctx, topicID)
+		topic, _, err = pubsubClient.FindOrCreateTopic(ctx, topicID)
 	} else {
 		topic, err = pubsubClient.FindTopic(ctx, topicID)
 	}

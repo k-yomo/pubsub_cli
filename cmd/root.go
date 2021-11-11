@@ -44,6 +44,7 @@ func newRootCmd(out io.Writer) *cobra.Command {
 	rootCmd.AddCommand(
 		newPublishCmd(out),
 		newSubscribeCmd(out),
+		newCreateTopicCmd(out),
 		newCreateSubscriptionCmd(out),
 		newRegisterPushCmd(out),
 		newConnectCmd(out),
