@@ -11,5 +11,5 @@ require (
 	github.com/rs/xid v1.3.0
 	github.com/spf13/cobra v1.3.0
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
-	google.golang.org/api v0.65.0
+	google.golang.org/api v0.67.0
 )
