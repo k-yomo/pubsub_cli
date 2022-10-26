@@ -10,6 +10,6 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/rs/xid v1.4.0
 	github.com/spf13/cobra v1.5.0
-	golang.org/x/sync v0.0.0-20220601150217-0de741cfad7f
-	google.golang.org/api v0.98.0
+	golang.org/x/sync v0.1.0
+	google.golang.org/api v0.101.0
 )
