@@ -9,7 +9,7 @@ require (
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db
 	github.com/pkg/errors v0.9.1
 	github.com/rs/xid v1.4.0
-	github.com/spf13/cobra v1.5.0
+	github.com/spf13/cobra v1.6.1
 	golang.org/x/sync v0.1.0
 	google.golang.org/api v0.102.0
 )
