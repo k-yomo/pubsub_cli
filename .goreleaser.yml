@@ -33,6 +33,7 @@ brews:
   - tap:
       owner: k-yomo
       name: homebrew-pubsub_cli
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
     folder: Formula
     homepage: https://github.com/k-yomo/pubsub_cli
     description: Super handy cloud Pub/Sub CLI
