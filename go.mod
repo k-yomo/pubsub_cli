@@ -10,7 +10,7 @@ require (
 	github.com/rs/xid v1.4.0
 	github.com/spf13/cobra v1.6.1
 	golang.org/x/sync v0.1.0
-	google.golang.org/api v0.108.0
+	google.golang.org/api v0.109.0
 )
 
 require (
