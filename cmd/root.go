@@ -2,10 +2,11 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/mitchellh/colorstring"
-	"github.com/spf13/cobra"
 	"io"
 	"os"
+
+	"github.com/mitchellh/colorstring"
+	"github.com/spf13/cobra"
 )
 
 const projectFlagName = "project"
@@ -48,6 +49,7 @@ func newRootCmd(out io.Writer) *cobra.Command {
 		newCreateSubscriptionCmd(out),
 		newRegisterPushCmd(out),
 		newConnectCmd(out),
+		newListTopicsCmd(out),
 	)
 	return rootCmd
 }
