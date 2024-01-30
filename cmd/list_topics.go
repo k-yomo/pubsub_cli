@@ -43,7 +43,7 @@ func newListTopicsCmd(out io.Writer) *cobra.Command {
 	return command
 }
 
-// createTopic finds or creates Pub/Sub topics
+// listTopics lists all Pub/Sub topics in the project
 func listTopics(ctx context.Context, out io.Writer, pubsubClient *pkg.PubSubClient) error {
 	topics, err := pubsubClient.FindAllTopics(ctx)
 	if err != nil {
