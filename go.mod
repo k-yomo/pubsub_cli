@@ -9,7 +9,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/rs/xid v1.5.0
 	github.com/spf13/cobra v1.8.0
-	golang.org/x/sync v0.6.0
+	golang.org/x/sync v0.10.0
 	google.golang.org/api v0.167.0
 )
 
